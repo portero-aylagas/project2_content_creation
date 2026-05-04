@@ -219,3 +219,6 @@ __marimo__/
 
 # Conda environments
 .conda/
+
+# VS Code Python extension settings files
+.vscode/
