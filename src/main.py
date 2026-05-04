@@ -22,6 +22,12 @@ MONTH_OPTIONS = [
     "December",
 ]
 YEAR_OPTIONS = [str(year) for year in range(2024, 2031)]
+REPORT_DEPTH_OPTIONS = ["short", "standard", "detailed"]
+AUDIENCE_OPTIONS = [
+    "strategy",
+    "artist_solutions",
+    "executive",
+]
 
 SECTION_OPTIONS = [
     "executive_summary",
@@ -100,6 +106,8 @@ def build_report_request(
     month_name: str,
     markets: list[str],
     sections: list[str],
+    report_depth: str,
+    audience: str,
     selected_model: str,
     temperature: float,
 ) -> dict[str, object]:
@@ -115,6 +123,8 @@ def build_report_request(
         "report_period": f"{month_name} {year}",
         "markets": markets,
         "sections": sections,
+        "report_depth": report_depth,
+        "audience": audience,
         "model": selected_model,
         "temperature": temperature,
     }
@@ -129,6 +139,8 @@ def submit_report_request(
     month_name: str,
     markets: list[str],
     sections: list[str],
+    report_depth: str,
+    audience: str,
     selected_model: str,
     temperature: float,
 ) -> tuple[str, str, str]:
@@ -141,6 +153,8 @@ def submit_report_request(
         month_name,
         markets,
         sections,
+        report_depth,
+        audience,
         selected_model,
         temperature,
     )
@@ -151,6 +165,8 @@ def submit_report_request(
         "report_period": report_request["report_period"],
         "markets": report_request["markets"],
         "selected_sections": report_request["sections"],
+        "report_depth": report_request["report_depth"],
+        "audience": report_request["audience"],
         "selected_model": report_request["model"],
         "temperature": report_request["temperature"],
     }
@@ -269,6 +285,23 @@ def main():
                 interactive=True,
             )
 
+            with gr.Row():
+                report_depth_dropdown = gr.Dropdown(
+                    choices=REPORT_DEPTH_OPTIONS,
+                    value="standard",
+                    label="Report Depth",
+                    info="Controls the intended output length and level of detail.",
+                    interactive=True,
+                )
+
+                audience_dropdown = gr.Dropdown(
+                    choices=AUDIENCE_OPTIONS,
+                    value="strategy",
+                    label="Audience",
+                    info="Controls the framing of the output for the target reader.",
+                    interactive=True,
+                )
+
             generate_button = gr.Button("Generate Report")
 
         warning_output = gr.Textbox(
@@ -294,6 +327,8 @@ def main():
                 month_dropdown,
                 market_selector,
                 section_selector,
+                report_depth_dropdown,
+                audience_dropdown,
                 model_dropdown,
                 temperature_slider,
             ],
