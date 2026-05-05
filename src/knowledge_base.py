@@ -46,10 +46,22 @@ def filter_sections(kb, section, date, country=None):
 
     return content
 
+def get_section_context(kb, sections, date, markets):
+    content = ""
+    for s in sections:
+        content += "#######################################\n"
+        if s == "market_trends":
+            for c in markets:
+                content += filter_sections(kb, s, date, c)
+                content += "\n\n"
+        else:
+            content += filter_sections(kb, s, date)
+            content += "\n\n"
+    return content
 
 if __name__ == "__main__":
     from document_processor import load_knowledge_base
     kb = load_knowledge_base()
 
-    result = filter_sections(kb, section = "opportunities", date = "2026 January", country = "Germany")
+    result = get_section_context(kb, ["market_trends", "opportunities"], "2026 March", ["UK"])
     print(result)
