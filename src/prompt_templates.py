@@ -17,19 +17,26 @@ STYLES = {
 }
 
 # -----------------------------
-# TEMPLATE LOADER
+# TEMPLATE LOADER (UPDATED)
 # -----------------------------
 
-def load_template(template_name: str) -> str:
-    template_path = TEMPLATES_DIR / f"{template_name}.json"
+def load_prompt(prompt_key: str) -> str:
+    template_path = TEMPLATES_DIR / "prompt_generation.json"
 
     if not template_path.exists():
-        raise FileNotFoundError(f"Template not found: {template_path}")
+        raise FileNotFoundError(f"Template file not found: {template_path}")
 
     with open(template_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    return data["template"]
+    if prompt_key not in data:
+        raise KeyError(
+            f"[PromptTemplates ERROR] Prompt '{prompt_key}' not found. "
+            f"Available keys: {list(data.keys())}"
+        )
+
+    return data[prompt_key]
+
 
 # -----------------------------
 # VALIDATION
@@ -41,6 +48,7 @@ def validate_inputs(metadata: Dict[str, Any]):
     for field in required_fields:
         if field not in metadata:
             raise ValueError(f"[PromptTemplates ERROR] Missing required field: {field}")
+
 
 # -----------------------------
 # CONTEXT PARSER
@@ -69,6 +77,7 @@ def parse_structured_context(context: str) -> Dict[str, str]:
 
     return sections
 
+
 # -----------------------------
 # SECTION INSTRUCTIONS
 # -----------------------------
@@ -84,6 +93,7 @@ def get_section_instructions(section: str) -> str:
 
     return mapping.get(section, "- Provide high-quality, insight-driven analysis")
 
+
 # -----------------------------
 # MAIN PROMPT BUILDER
 # -----------------------------
@@ -93,7 +103,9 @@ def build_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
     try:
         validate_inputs(metadata)
 
-        template = load_template("market_analysis")
+        # 🔥 NEW: dynamic prompt selection
+        prompt_key = metadata.get("prompt_type", "market_analysis")
+        template = load_prompt(prompt_key)
 
         style = metadata.get("style", "thought_leadership")
         style_desc = STYLES.get(style, STYLES["thought_leadership"])
@@ -106,20 +118,28 @@ def build_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
 
         section_instruction = get_section_instructions(metadata["section"])
 
-        prompt = template.format(
-            section=metadata["section"],
-            timeframe=metadata.get("month", "N/A"),
-            markets=", ".join(metadata.get("markets", [])),
-            structured_block=structured_block,
-            style_desc=style_desc,
-            section_instruction=section_instruction
-        )
+        # 🔥 SAFE FORMATTING (supports prompts WITHOUT variables)
+        try:
+            prompt = template.format(
+                section=metadata["section"],
+                timeframe=metadata.get("month", "N/A"),
+                markets=", ".join(metadata.get("markets", [])),
+                structured_block=structured_block,
+                style_desc=style_desc,
+                section_instruction=section_instruction,
+                context=metadata.get("context", "")
+            )
+        except KeyError:
+            # If template has no placeholders → use raw template
+            prompt = template
 
         return {
             "section": metadata["section"],
             "prompt": prompt.strip(),
             "max_tokens": metadata.get("max_tokens", 600),
-            "temperature": metadata.get("temperature", 0.2)
+            "temperature": metadata.get("temperature", 0.2),
+            "prompt_type": prompt_key,
+            "success": True
         }
 
     except Exception as e:
