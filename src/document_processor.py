@@ -17,40 +17,50 @@ def load_knowledge_base():
 
     return knowledge
 
-def read_file_base(file):
-    """Parse a markdown file and return a dictionary of sections.
-    
-    Args:
-        file: Path to a markdown file
-        
-    Returns:
-        Dictionary where keys are section names (heading text) and values are 
-        the text content of that section. Content before the first heading is 
-        stored under the "Header" key.
-    """
-    sections = {}
-    current_section = "Header" # Default section for content before the first heading
-    current_content = []
-    
-    with open(file, 'r', encoding='utf-8') as f:
-        for line in f:
-            # Check if line is a markdown heading
-            if line.startswith('#'):
-                # Save previous section
-                sections[current_section] = '\n'.join(current_content).strip()
-                
-                # Extract section name (remove leading #'s and whitespace)
-                current_section = line.lstrip('#').strip()
-                current_content = []
+def read_file_base(file_path):
+    def parse(lines, level):
+        # Check if there are any headings at this level
+        has_heading = any(
+            line.strip().startswith("#" * level) and not line.strip().startswith("#" * (level + 1))
+            for line in lines
+        )
+
+        # If no headings → return raw content
+        if not has_heading:
+            return "\n".join(line.strip() for line in lines).strip()
+
+        result = {}
+        i = 0
+
+        while i < len(lines):
+            line = lines[i].rstrip()
+
+            if line.startswith("#" * level) and not line.startswith("#" * (level + 1)):
+                title = line[level:].strip()
+                i += 1
+
+                # Collect this section's block
+                block = []
+                while i < len(lines):
+                    next_line = lines[i]
+                    if next_line.strip().startswith("#" * level) and not next_line.strip().startswith("#" * (level + 1)):
+                        break
+                    block.append(next_line)
+                    i += 1
+
+                result[title] = parse(block, level + 1)
+
             else:
-                # Add line to current section content
-                current_content.append(line.rstrip())
-    
-    # Save the last section
-    sections[current_section] = '\n'.join(current_content).strip()
-    
-    return sections
+                i += 1
+
+        return result
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    return parse(lines, 1)
 
 if __name__ == "__main__":
-    knowledge_base = load_knowledge_base()
-    # print(knowledge_base)
+    path = Path("knowledge_base/secondary/market_trends_DE_UK_FR.md")
+    read_file = read_file_base(path)
+    print(read_file['2026 February']['Germany'])
