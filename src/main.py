@@ -18,7 +18,11 @@ MONTH_OPTIONS = [
 
 YEAR_OPTIONS = ["2026"]
 
-REPORT_DEPTH_OPTIONS = ["short", "standard", "detailed"]
+REPORT_DEPTH_OPTIONS = [
+    "short: 200-300 words",
+    "standard: 500-700 words",
+    "detailed: 2500-3000 words",
+]
 AUDIENCE_OPTIONS = [
     "strategy",
     "artist_solutions",
@@ -321,7 +325,7 @@ def main():
             with gr.Row():
                 report_depth_dropdown = gr.Dropdown(
                     choices=REPORT_DEPTH_OPTIONS,
-                    value="standard",
+                    value="standard: 500-700 words",
                     label="Report Depth",
                     info="Controls the intended output length and level of detail.",
                     interactive=True,

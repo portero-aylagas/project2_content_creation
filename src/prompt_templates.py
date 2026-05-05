@@ -35,7 +35,12 @@ def load_template(prompt_key: str) -> str:
             f"Available keys: {list(data.keys())}"
         )
 
-    return data[prompt_key]
+    template_value = data[prompt_key]
+
+    if isinstance(template_value, list):
+        return "\n".join(str(line) for line in template_value)
+
+    return str(template_value)
 
 
 def load_prompt(prompt_key: str) -> str:
@@ -47,61 +52,15 @@ def load_prompt(prompt_key: str) -> str:
 # VALIDATION
 # -----------------------------
 
-def validate_inputs(metadata: Mapping[str, Any]) -> None:
-    required_fields = ["section", "context"]
+def validate_inputs(
+    metadata: Mapping[str, Any], required_fields: list[str] | None = None
+) -> None:
+    if required_fields is None:
+        required_fields = ["context"]
 
     for field in required_fields:
         if field not in metadata:
             raise ValueError(f"[PromptTemplates ERROR] Missing required field: {field}")
-
-
-# -----------------------------
-# CONTEXT PARSER
-# -----------------------------
-
-def parse_structured_context(context: object) -> Dict[str, str]:
-    if isinstance(context, dict):
-        return {str(key): str(value) for key, value in context.items()}
-
-    if not isinstance(context, str):
-        return {"context": str(context)}
-
-    sections = {}
-    current_section = None
-    buffer = []
-
-    for line in context.split("\n"):
-        line = line.strip()
-
-        if line.startswith("###"):
-            if current_section:
-                sections[current_section] = "\n".join(buffer).strip()
-                buffer = []
-
-            current_section = line.replace("###", "").strip()
-
-        elif current_section:
-            buffer.append(line)
-
-    if current_section:
-        sections[current_section] = "\n".join(buffer).strip()
-
-    return sections
-
-
-def _render_report_template(report_template: object) -> str:
-    if report_template is None:
-        return ""
-
-    if isinstance(report_template, str):
-        return report_template.strip()
-
-    if isinstance(report_template, dict):
-        if not report_template:
-            return ""
-        return json.dumps(report_template, indent=2, ensure_ascii=False)
-
-    return str(report_template).strip()
 
 
 # -----------------------------
@@ -126,6 +85,50 @@ def get_section_instructions(section: str) -> str:
     return mapping.get(section, "- Provide high-quality, insight-driven analysis")
 
 
+def _get_section_scope(metadata: Mapping[str, Any]) -> str:
+    sections = metadata.get("sections")
+    if isinstance(sections, list) and sections:
+        return ", ".join(
+            str(section_name).replace("_", " ").title()
+            for section_name in sections
+        )
+
+    section = metadata.get("section", "")
+    if section:
+        return str(section).replace("_", " ").title()
+
+    return "Selected Report Sections"
+
+
+def _get_section_instruction_block(metadata: Mapping[str, Any]) -> str:
+    sections = metadata.get("sections")
+
+    if isinstance(sections, list) and sections:
+        instructions = []
+        for section_name in sections:
+            instruction = get_section_instructions(str(section_name))
+            if instruction not in instructions:
+                instructions.append(instruction)
+        return "\n".join(instructions)
+
+    return get_section_instructions(str(metadata.get("section", "")))
+
+
+def _get_length_instruction(report_depth: str) -> str:
+    if "words" in str(report_depth).lower():
+        return str(report_depth)
+
+    length_map = {
+        "short": "Keep the response concise and high-signal, around 150-250 words.",
+        "standard": "Target a balanced level of detail, around 250-400 words.",
+        "detailed": "Provide a more developed response, around 400-700 words.",
+    }
+    return length_map.get(
+        str(report_depth),
+        "Target a balanced level of detail, around 250-400 words.",
+    )
+
+
 # -----------------------------
 # MAIN PROMPT BUILDER
 # -----------------------------
@@ -143,46 +146,32 @@ def _format_prompt(template: str, values: Dict[str, Any]) -> str:
 
 def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
     try:
-        validate_inputs(metadata)
+        validate_inputs(metadata, required_fields=["combined_context"])
 
         prompt_key = str(metadata.get("prompt_type", "market_analysis"))
         template = load_template(prompt_key)
 
-        style = str(metadata.get("style", "thought_leadership"))
-        style_desc = STYLES.get(style, STYLES["thought_leadership"])
-
-        structured_context = parse_structured_context(metadata["context"])
-        structured_block = "".join(
-            f"\n### {section_name}\n{content}\n"
-            for section_name, content in structured_context.items()
-        ).strip()
-
-        section_instruction = get_section_instructions(str(metadata["section"]))
-        report_template_block = _render_report_template(
-            metadata.get("report_template")
+        style_desc = STYLES.get(
+            str(metadata.get("style", "thought_leadership")),
+            STYLES["thought_leadership"],
         )
-        markets = metadata.get("markets", [])
-        market_list = ", ".join(str(market) for market in markets)
+        report_depth = str(metadata.get("report_depth", "standard"))
+        audience = str(metadata.get("audience", ""))
+        length_instruction = _get_length_instruction(report_depth)
+        combined_context = str(metadata.get("combined_context", ""))
 
         prompt_values = {
-            "section": str(metadata["section"]),
-            "timeframe": str(metadata.get("month", "N/A")),
-            "markets": market_list,
-            "structured_block": structured_block or str(metadata.get("context", "")),
+            "combined_context": combined_context,
             "style_desc": style_desc,
-            "section_instruction": section_instruction,
-            "context": str(metadata.get("context", "")),
-            "report_template": metadata.get("report_template", ""),
-            "report_template_block": report_template_block,
-            "report_depth": str(metadata.get("report_depth", "")),
-            "audience": str(metadata.get("audience", "")),
-            "year": str(metadata.get("year", "")),
+            "report_depth": report_depth,
+            "audience": audience,
+            "length_instruction": length_instruction,
         }
 
         prompt = _format_prompt(template, prompt_values).strip()
 
         return {
-            "section": str(metadata["section"]),
+            "section": "combined_report",
             "prompt": prompt,
             "max_tokens": int(metadata.get("max_tokens", 600)),
             "temperature": float(metadata.get("temperature", 0.2)),
@@ -192,7 +181,7 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
 
     except Exception as e:
         return {
-            "section": str(metadata.get("section", "unknown")),
+            "section": "combined_report",
             "error": str(e),
             "success": False,
         }
@@ -205,20 +194,30 @@ def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         template = load_template("feedback_prompt")
         style = str(metadata.get("style", "thought_leadership"))
         style_desc = STYLES.get(style, STYLES["thought_leadership"])
-        section_instruction = get_section_instructions(str(metadata["section"]))
+        section_scope = _get_section_scope(metadata)
+        section_instruction = _get_section_instruction_block(metadata)
         markets = metadata.get("markets", [])
         market_list = ", ".join(str(market) for market in markets)
+        report_depth = str(metadata.get("report_depth", "standard"))
+        audience = str(metadata.get("audience", ""))
+        length_instruction = _get_length_instruction(report_depth)
 
         prompt_values = {
-            "section": str(metadata["section"]),
+            "section": str(metadata.get("section", section_scope)),
+            "section_scope": section_scope,
             "timeframe": str(metadata.get("month", "N/A")),
             "markets": market_list,
+            "combined_context": str(metadata.get("context", "")),
             "context": str(metadata.get("context", "")),
             "user_feedback": str(
                 metadata.get("user_feedback", metadata.get("feedback_text", ""))
             ),
+            "style": style,
             "style_desc": style_desc,
             "section_instruction": section_instruction,
+            "report_depth": report_depth,
+            "audience": audience,
+            "length_instruction": length_instruction,
         }
 
         prompt = _format_prompt(template, prompt_values).strip()

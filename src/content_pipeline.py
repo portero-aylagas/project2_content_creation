@@ -4,6 +4,7 @@ from datetime import date
 
 from document_processor import load_knowledge_base
 from knowledge_base import get_section_context
+from prompt_templates import build_feedback_prompt, build_prompt
 
 MARKET_NAME_MAP = {
     "DE": "Germany",
@@ -54,6 +55,9 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         "report_period": str(report_request["report_period"]),
         "markets": markets,
         "sections": sections,
+        "report_depth": str(report_request.get("report_depth", "")),
+        "audience": str(report_request.get("audience", "")),
+        "style": str(report_request.get("style", "")),
     }
 
     kb_markets = [
@@ -79,12 +83,27 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
             "knowledge_base.get_section_context() must return a string."
         )
 
+    prompt_payload = build_prompt(
+        {
+            "combined_context": combined_context,
+            "report_depth": normalized_request["report_depth"],
+            "audience": normalized_request["audience"],
+            "style": normalized_request["style"],
+        }
+    )
+
+    print(prompt_payload)
+
+    if prompt_payload.get("error"):
+        raise RuntimeError(prompt_payload["error"])
+
     return {
         "report": {
             "full_text": combined_context,
             "word_count": len(combined_context.split()),
             "sections": normalized_request["sections"],
         },
+        "prompt": prompt_payload,
         "metadata": {
             "generated_on": date.today().isoformat(),
             "sections_selected": normalized_request["sections"],
@@ -105,7 +124,27 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
         raise TypeError("Feedback field 'original_inputs' must be a dict payload.")
 
     regenerated_report = generate_report(original_inputs)
+    feedback_prompt_payload = build_feedback_prompt(
+        {
+            "section": "combined_report",
+            "sections": regenerated_report["metadata"]["sections_selected"],
+            "context": regenerated_report["report"]["full_text"],
+            "month": regenerated_report["metadata"]["report_period"],
+            "year": str(original_inputs.get("year", "")),
+            "markets": regenerated_report["metadata"]["markets_selected"],
+            "report_depth": str(original_inputs.get("report_depth", "")),
+            "audience": str(original_inputs.get("audience", "")),
+            "style": str(original_inputs.get("style", "")),
+            "feedback_text": str(feedback_request.get("feedback_text", "")),
+            "user_feedback": str(feedback_request.get("feedback_text", "")),
+        }
+    )
+
+    if feedback_prompt_payload.get("error"):
+        raise RuntimeError(feedback_prompt_payload["error"])
+
     regenerated_report["metadata"]["feedback_text"] = str(
         feedback_request.get("feedback_text", "")
     )
+    regenerated_report["feedback_prompt"] = feedback_prompt_payload
     return regenerated_report
