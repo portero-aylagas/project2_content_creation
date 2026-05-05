@@ -1,3 +1,9 @@
+"""Prompt-template loading and prompt payload builders.
+
+This module converts pipeline metadata into formatted prompt payloads using
+`templates/prompt_generation.json`.
+"""
+
 from typing import Any, Dict, Mapping
 import json
 from pathlib import Path
@@ -21,6 +27,7 @@ STYLES = {
 # -----------------------------
 
 def load_template(prompt_key: str) -> str:
+    """Load one prompt template by key from `prompt_generation.json`."""
     template_path = TEMPLATES_DIR / "prompt_generation.json"
 
     if not template_path.exists():
@@ -55,6 +62,7 @@ def load_prompt(prompt_key: str) -> str:
 def validate_inputs(
     metadata: Mapping[str, Any], required_fields: list[str] | None = None
 ) -> None:
+    """Validate that required keys exist in a metadata payload."""
     if required_fields is None:
         required_fields = ["context"]
 
@@ -68,6 +76,7 @@ def validate_inputs(
 # -----------------------------
 
 def get_section_instructions(section: str) -> str:
+    """Return section-specific writing guidance used in feedback prompts."""
     mapping = {
         "executive_summary": "- Synthesize the highest-value cross-market conclusions",
         "market_trends": "- Focus on macro patterns, shifts, and forward-looking signals",
@@ -86,6 +95,7 @@ def get_section_instructions(section: str) -> str:
 
 
 def _get_section_scope(metadata: Mapping[str, Any]) -> str:
+    """Render selected sections into a readable scope string."""
     sections = metadata.get("sections")
     if isinstance(sections, list) and sections:
         return ", ".join(
@@ -101,6 +111,7 @@ def _get_section_scope(metadata: Mapping[str, Any]) -> str:
 
 
 def _get_section_instruction_block(metadata: Mapping[str, Any]) -> str:
+    """Build merged section guidance for one or multiple sections."""
     sections = metadata.get("sections")
 
     if isinstance(sections, list) and sections:
@@ -115,6 +126,7 @@ def _get_section_instruction_block(metadata: Mapping[str, Any]) -> str:
 
 
 def _get_length_instruction(report_depth: str) -> str:
+    """Normalize depth values into explicit length guidance."""
     if "words" in str(report_depth).lower():
         return str(report_depth)
 
@@ -130,6 +142,7 @@ def _get_length_instruction(report_depth: str) -> str:
 
 
 def _render_section_feedback(section_feedback: object) -> str:
+    """Render section-feedback input into markdown bullet text."""
     if isinstance(section_feedback, dict) and section_feedback:
         lines = []
         for section_name, feedback_text in section_feedback.items():
@@ -149,6 +162,7 @@ def _render_section_feedback(section_feedback: object) -> str:
 # -----------------------------
 
 def _format_prompt(template: str, values: Dict[str, Any]) -> str:
+    """Format a template and raise a clear error for missing placeholders."""
     try:
         return template.format(**values)
     except KeyError as exc:
@@ -160,6 +174,11 @@ def _format_prompt(template: str, values: Dict[str, Any]) -> str:
 
 
 def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """Build the main market-analysis prompt payload.
+
+    Expected metadata keys:
+        `combined_context`, `report_depth`, `audience`, `style`
+    """
     try:
         validate_inputs(metadata, required_fields=["combined_context"])
 
@@ -203,6 +222,12 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """Build the feedback/revision prompt payload.
+
+    Expected metadata keys:
+        `original_prompt`, `generated_content`, `general_feedback`,
+        `section_feedback`, `report_depth`, `audience`, `style`
+    """
     try:
         validate_inputs(
             metadata,

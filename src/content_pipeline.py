@@ -1,3 +1,11 @@
+"""Content pipeline orchestration.
+
+This module coordinates:
+1. KB loading and context assembly,
+2. prompt generation,
+3. LLM generation for initial reports and feedback-based revisions.
+"""
+
 from __future__ import annotations
 
 from datetime import date
@@ -23,9 +31,15 @@ SECTION_NAME_MAP = {
 
 
 def generate_report(report_request: dict[str, object]) -> dict[str, object]:
-    """
-    Load the KB through document_processor and pass the selected sections,
-    markets, and date into knowledge_base to get the combined context string.
+    """Generate a report from UI request parameters.
+
+    Args:
+        report_request (dict): Request payload from UI with date, sections,
+        markets, and generation controls.
+
+    Returns:
+        dict: Pipeline response including generated report text, prompt payload,
+        raw combined KB context, LLM metadata, and usage/cost metrics.
     """
     required_fields = ("month", "year", "report_period", "markets", "sections")
     missing_fields = [
@@ -63,6 +77,7 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         "temperature": float(report_request.get("temperature", 0.2)),
     }
 
+    # Convert UI-facing labels/codes into KB-internal keys.
     kb_markets = [
         MARKET_NAME_MAP.get(market_code, market_code)
         for market_code in normalized_request["markets"]
@@ -135,9 +150,14 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
 
 
 def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
-    """
-    Build a feedback prompt from the original generated report and send it to
-    the LLM to produce a revised version.
+    """Generate a revised report version using user feedback.
+
+    Args:
+        feedback_request (dict): Payload containing previous prompt/output,
+        general + section-level feedback, and current generation controls.
+
+    Returns:
+        dict: Revised report payload and LLM metadata for the feedback pass.
     """
     original_inputs = feedback_request.get("original_inputs", {})
     original_report_text = str(feedback_request.get("original_report_text", ""))

@@ -1,3 +1,5 @@
+"""Gradio UI for report generation and feedback-based iteration."""
+
 import json
 from datetime import date
 
@@ -77,12 +79,7 @@ def build_report_request(
     selected_model: str,
     temperature: float,
 ) -> dict[str, object]:
-    """
-    Build the report-generation request object from the Gradio inputs.
-
-    For now this returns the structured payload so the UI contract is aligned
-    with the future content_pipeline.py integration.
-    """
+    """Build the report-generation payload from current UI values."""
     report_request = {
         "month": month_name,
         "year": year,
@@ -112,9 +109,7 @@ def submit_report_request(
     selected_model: str,
     temperature: float,
 ) -> tuple[str, str, str, str]:
-    """
-    Submit the report request to the real content pipeline.
-    """
+    """Generate a report and return status, request JSON, markdown, and payload."""
     report_request = build_report_request(
         year,
         month_name,
@@ -162,10 +157,7 @@ def submit_feedback_request(
     temperature: float,
     *section_feedback_values: str,
 ) -> tuple[str, str, str]:
-    """
-    Send the generated report, original inputs, and user feedback to the
-    iterate stage in content_pipeline.py.
-    """
+    """Run feedback iteration and return status, revised markdown, and payload."""
     if not generated_report_text.strip():
         return (
             "WARNING: Generate the report before applying feedback.",
@@ -192,6 +184,7 @@ def submit_feedback_request(
 
     original_inputs = json.loads(report_request_json)
     pipeline_response = json.loads(pipeline_response_json)
+    # Reuse the exact prompt from the first generation pass for revision context.
     original_prompt = str(
         pipeline_response.get("prompt", {}).get("prompt", "")
     )
@@ -272,14 +265,7 @@ def get_section_label(section_name: str) -> str:
 
 
 def main():
-    """
-    Launch the Gradio UI for selecting report-generation inputs.
-
-    Current purpose:
-    - Fetch models suitable for text generation
-    - Collect report metadata and section selection
-    - Prepare the UI contract for the pipeline layer
-    """
+    """Launch the Gradio app for generation + feedback workflows."""
     models = get_summary_candidate_models()
     default_model = models[0] if models else None
     current_date = date.today()

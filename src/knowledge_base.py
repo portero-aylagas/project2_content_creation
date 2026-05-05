@@ -1,11 +1,33 @@
+"""Knowledge-base context selection and concatenation.
+
+This module builds report-ready context strings from parsed KB data returned by
+`document_processor.load_knowledge_base`.
+"""
+
 def iter_dict(sel_sect):
+    """Render a dictionary section as a simple key-value text block."""
     return "".join(f"{k} -- {v}\n\n" for k, v in sel_sect.items())
 
 def filter_sections(kb, section, date, country=None):
+    """Build context text for one internal section name.
+
+    Args:
+        kb (dict): Parsed knowledge-base dictionary.
+        section (str): Internal section key expected by this module:
+            `market_trends`, `platform_updates`, `competition`,
+            `artist_economy`, or `opportunities`.
+        date (str): Period key in the form `YYYY Month` (for example,
+            `2026 March`).
+        country (str | None): Required only for `market_trends`.
+
+    Returns:
+        str: Concatenated context for the requested section.
+    """
     
     content = ""
 
     if section == "market_trends":
+        # Market trends are stored by country under one date bucket.
         selected_section = kb["secondary"]["market_trends_DE_UK_FR"][date][country]
         content += f"# Market trends for {country} in {date}:\n\n"
         content += selected_section
@@ -47,6 +69,17 @@ def filter_sections(kb, section, date, country=None):
     return content
 
 def get_section_context(kb, sections, date, markets):
+    """Build one combined context string from all selected sections.
+
+    Args:
+        kb (dict): Parsed KB dictionary from `document_processor`.
+        sections (list[str]): Internal section names to include.
+        date (str): Period key used in secondary KB files.
+        markets (list[str]): Market labels used for `market_trends` context.
+
+    Returns:
+        str: Combined context text used by prompt generation.
+    """
     content = ""
     for s in sections:
         content += "#######################################\n"
@@ -60,6 +93,7 @@ def get_section_context(kb, sections, date, markets):
     return content
 
 if __name__ == "__main__":
+    # Quick local check for context assembly.
     from document_processor import load_knowledge_base
     kb = load_knowledge_base()
 

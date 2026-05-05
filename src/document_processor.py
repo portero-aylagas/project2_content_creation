@@ -1,10 +1,18 @@
+"""Knowledge base ingestion utilities.
+
+This module reads markdown files from the local `knowledge_base/` directory and
+parses heading hierarchies into nested dictionaries.
+"""
+
 from pathlib import Path
 
 def load_knowledge_base():
-    """Load metadata for knowledge base folders into a nested dictionary.
+    """Load all knowledge-base markdown files into a nested dictionary.
 
-    Each top-level key is a folder name in knowledge_base (for example, "primary" or "secondary").
-    Each folder value is a dictionary mapping file names to empty string values.
+    Returns:
+        dict: Structure grouped by folder name (`primary`, `secondary`) and file
+        stem, with each value containing parsed markdown content from
+        `read_file_base`.
     """
     base_path = Path("knowledge_base")
 
@@ -18,7 +26,17 @@ def load_knowledge_base():
     return knowledge
 
 def read_file_base(file_path):
+    """Parse a markdown file into nested section dictionaries by heading level.
+
+    Args:
+        file_path (Path): Path to a markdown file.
+
+    Returns:
+        dict | str: Nested structure keyed by headings. Leaf values are strings
+        when no deeper headings exist.
+    """
     def parse(lines, level):
+        """Recursively parse lines for the current heading level."""
         # Check if there are any headings at this level
         has_heading = any(
             line.strip().startswith("#" * level) and not line.strip().startswith("#" * (level + 1))
@@ -61,5 +79,5 @@ def read_file_base(file_path):
     return parse(lines, 1)
 
 if __name__ == "__main__":
-    path = Path("knowledge_base/secondary/market_trends_DE_UK_FR.md")
+    # Quick local check: parse and load the KB structure.
     kb = load_knowledge_base()

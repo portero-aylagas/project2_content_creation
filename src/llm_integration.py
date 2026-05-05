@@ -1,3 +1,9 @@
+"""LLM integration and usage tracking for report generation.
+
+This module provides model discovery utilities, generation wrappers around the
+OpenAI client, and lightweight token/cost accounting.
+"""
+
 import os
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
@@ -32,6 +38,7 @@ USAGE_STATS = {
 
 
 def _get_client() -> OpenAI:
+    """Return a singleton OpenAI client using `OPENAI_API_KEY`."""
     global _OPENAI_CLIENT
 
     if _OPENAI_CLIENT is not None:
@@ -48,6 +55,7 @@ def _get_client() -> OpenAI:
 # -----------------------------
 
 def get_openai_models() -> List[str]:
+    """List available models from the OpenAI API, with safe fallbacks."""
     if not API_KEY:
         return list(FALLBACK_MODEL_IDS)
 
@@ -59,6 +67,7 @@ def get_openai_models() -> List[str]:
 
 
 def categorize_model(model_id: str) -> str:
+    """Map a model id to a coarse capability category."""
     model = model_id.lower()
 
     if "embedding" in model:
@@ -88,6 +97,7 @@ def categorize_model(model_id: str) -> str:
 
 
 def get_categorized_openai_models() -> Dict[str, List[str]]:
+    """Return discovered models grouped by `categorize_model` labels."""
     models = get_openai_models()
 
     categories = {
@@ -112,6 +122,7 @@ def get_categorized_openai_models() -> Dict[str, List[str]]:
 
 
 def get_summary_candidate_models() -> List[str]:
+    """Return text-generation candidates suitable for this app UI."""
     categorized = get_categorized_openai_models()
 
     candidates = []
@@ -130,6 +141,7 @@ def get_summary_candidate_models() -> List[str]:
 # -----------------------------
 
 def get_default_model() -> str:
+    """Choose the default model used when no explicit model is passed."""
     candidates = get_summary_candidate_models()
 
     for preferred in ["gpt-4.1", "gpt-4.1-mini"]:
@@ -159,6 +171,7 @@ MODEL_PRICING = {
 # -----------------------------
 
 def calculate_cost_from_usage(usage, model: str) -> float:
+    """Estimate request cost (USD) from token usage and pricing table."""
     if not usage:
         return 0.0
 
@@ -184,6 +197,7 @@ def calculate_cost_from_usage(usage, model: str) -> float:
 def _normalize_generation_request(
     prompt_obj: Dict[str, Any],
 ) -> Dict[str, Any]:
+    """Validate the minimum required prompt payload shape."""
     if not isinstance(prompt_obj, dict):
         raise TypeError("Prompt payload must be a dict.")
 
@@ -201,6 +215,16 @@ def generate_text(
     model: str = None,
     temperature: float = 0.2
 ) -> Dict[str, Any]:
+    """Call the chat completion endpoint and return normalized output payload.
+
+    Args:
+        prompt_obj (dict): Prompt payload containing at least `prompt`.
+        model (str | None): Requested model id. Falls back to default model.
+        temperature (float): Fallback temperature if payload does not override.
+
+    Returns:
+        dict: Generation result with text, usage/cost, and success/error flags.
+    """
     if "error" in prompt_obj:
         return {
             "section": prompt_obj.get("section"),
@@ -264,6 +288,7 @@ def generate_section(prompt_obj: Dict[str, Any]) -> Dict[str, Any]:
 # -----------------------------
 
 def get_usage_stats() -> Dict[str, Any]:
+    """Return global usage/cost counters with per-request averages."""
     return {
         **USAGE_STATS,
         "avg_tokens_per_request": (
