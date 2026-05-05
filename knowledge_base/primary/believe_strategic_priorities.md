@@ -1,15 +1,64 @@
-# Believe Strategic Priorities
+## 2026 January
 
-Believe's FY 2025 strategy is built around four focus areas confirmed in its March 2025 earnings release. First, value optimisation: exit low-margin physical distribution contracts, particularly in Germany, and concentrate investment on digital-first, high-margin artist services. Second, controlled investment and selective acquisitions: bolt-on M&A in strategic markets following the Sentric (UK publishing), PlayCode (Japan), Krumulo (Indonesia) and White Hill Music (India) model rather than large-scale deals. Third, automation and efficiency: the Be Odyssey programme automates more of the Central Platform; TuneCore Accelerator demonstrates the model of using technology to deliver marketing support previously available only to Premium Solutions clients, now at scale for 450,000+ artists. Fourth, market share growth: the +13% organic revenue forecast for FY 2025 assumes market share gains in streaming across Europe and the Americas rather than relying on DSP price increases, which did not materialise as expected in FY 2024.
+### Corporate Strategy
+Four focus areas for FY 2025–2026: value optimisation (exit low-margin physical distribution, focus on digital-first high-margin services); controlled investment and selective acquisitions (bolt-on M&A following Sentric, PlayCode, Krumulo model); automation and efficiency (Be Odyssey programme, TuneCore Accelerator at scale); market share growth (+13% organic revenue target assumes streaming share gains across Europe and Americas). Long-term EBITDA margin target: at least 15%.
 
-Germany strategy is to stabilise and digitalise. Revenue grew only 0.4% in FY 2024. The plan is to complete exit from physical distribution contracts and accelerate the digital Premium Solutions pipeline. The Berlin and Hamburg indie and electronic scenes are underserved by major labels, and Believe's artist-first positioning resonates there. Groove Attack (Cologne) serves the German metal and rock market. Key concern is operational reorganisation — stability before growth.
+### Germany
+Stabilise and digitalise. Groove Attack physical exit confirmed complete January 2026 — first full month digital-only. Three Berlin electronic acts shortlisted for Premium Solutions onboarding in Q1. Independent electronic and techno scene underserved by major labels — Believe's artist-first positioning resonates. Spotify DE editorial appetite for bilingual German-English indie acts remains strong.
 
-UK strategy is to scale publishing and Premium Solutions. Revenue growth was positively uplifted by the Sentric integration. The plan is to leverage Sentric's UK publishing relationships to cross-sell Premium Solutions distribution and marketing services to Sentric's existing client base. The UK has Europe's strongest independent music market with 52% of chart acts being independent, which represents a large addressable market for Believe's Premium Solutions tier.
+### UK
+Scale publishing and Premium Solutions via Sentric cross-sell. Sentric pipeline generated 34 new Premium Solutions conversations in January — conversion rate 18%, up from 12% in Q4 2025. 52% of UK chart acts are independent — large addressable market for Premium Solutions tier.
 
-France strategy is to defend the home market and expand into adjacent genres. Revenue was up 10.3% in FY 2024. The plan is to maintain leadership in French rap and electronic music and expand via the Avant-Garde label (launched 2023, targeting rap, Afro, and R&B). French streaming has a strong domestic preference — 61% of top charts are French-language music — and Believe's Deezer editorial relationship is a home-market advantage.
+### France
+Defend home market, expand into adjacent genres via Avant-Garde label (rap, Afro, R&B). Avant-Garde signed 2 new Afropop acts in January. Deezer home market editorial relationship is a structural advantage over competitors. French-language music 63% of top streaming charts — strong domestic preference benefits Believe's French roster.
 
-The upsell pipeline from TuneCore to Premium Solutions is Believe's most important strategic differentiator. It is explicitly tracked: 1 in 5 TuneCore Accelerator artists advanced to a higher segment in 2024, with median royalty earnings increasing fivefold. Any trend that increases the number of viable independent artists in DE, UK, and FR markets is an opportunity for this funnel. Any trend that erodes independent artist revenues — platform policy changes, streaming fraud, AI-generated content dilution — is a threat to the top of that funnel.
+### Upsell Pipeline
+TuneCore Accelerator enrolled 462,000 artists as of January 31. 890 Premium Solutions conversions in January — monthly record. Any trend increasing viable independent artists in DE, UK, FR is an opportunity for the upsell funnel. Any trend eroding independent artist revenues (stream thresholds, AI content dilution) is a funnel threat. Sources: Believe FY 2024 https://www.believe.com/investors/newsroom/fy24-results — Believe internal data
 
-Long-term financial targets: Adjusted EBITDA margin of at least 15%, FY 2021–2025 revenue CAGR of 22–25% (set at IPO). The privatisation in 2024 is expected to accelerate investment decisions and reduce short-term earnings pressure, allowing more aggressive strategic positioning.
+---
 
-Sources: Believe FY 2024 results https://www.believe.com/investors/newsroom/fy24-results — PESTEL analysis https://pestel-analysis.com/blogs/growth-strategy/believe — BCG analysis https://matrixbcg.com/blogs/how-it-works/believe — Believe FY 2023 results https://www.believe.com/investors/newsroom/fy23-results
+## 2026 February
+
+### Germany
+Apple Music Germany "Berlin Underground" editorial section launched — Believe Germany submitted 3 candidates by March 1 deadline. Competitive alert: AWAL expanded Berlin A&R team, actively scouting 340 German-market independent artists.
+
+### UK
+BBC Introducing fast-track programme produced 2 Believe Premium Solutions opportunities in February — both in early-stage conversation. AWAL running targeted advertising at 40,000–100,000 listener acts — Believe's prime upsell segment. Pipeline conversion timeline must be shortened for this listener range.
+
+### France
+La Blogothèque March session series candidate submitted. Deezer Breakthrough programme invitation received — Believe France submitting 2 candidates per month.
+
+### Upsell Pipeline
+940 Premium Solutions conversions in February — 6% above January record. Advancement rate improved to 1-in-4.7. AWAL signed 3 acts from Believe's pipeline — competitive intelligence: AWAL is targeting the 40,000–100,000 listener segment with precision. Sources: Believe internal data
+
+---
+
+## 2026 March
+
+### Germany
+Reeperbahn Festival 2026 lineup confirmed 3 Believe-distributed acts — press coordination with Musikexpress and tip Berlin underway for April coverage. Spotify API integration scheduled for Q2 — will significantly enhance Backstage capabilities. Spotify DE 4 editorial placements achieved in Q1 with 33% conversion rate.
+
+### UK
+DIY Magazine "Class of 2026" featured 3 Believe-distributed acts — Spotify UK editorial consideration expected. BPI confirmed UK independent streaming growth outpacing major label streaming for third consecutive quarter — active pitching period.
+
+### France
+Deezer editorial summit outcome: 6 Believe acts confirmed for Q2 Deezer support. Competitive alert: Virgin Music signed French management company representing 12 acts — formerly potential Believe France prospects. France Inter prime-time slot opening to independent acts — Believe should identify 2 candidates for April submission.
+
+### Upsell Pipeline
+Q1 2026 total conversions: 2,680 — up 31% vs Q1 2025. UMG lawsuit: mediation failed, returned to litigation. Sources: Believe internal data
+
+---
+
+## 2026 April
+
+### Germany
+Berlin Music Week generated 3 Spotify DE fast-track opportunities — pitch materials due May 5. Spotify electronic genre editorial slots increasing 20% from May — maximise pitching volume in April. Competitive alert: AWAL launched dedicated electronic division, signed 1 act from Believe's pipeline — fast-track all electronic acts in pipeline immediately.
+
+### UK
+Record Store Day 2026: 2 Believe UK acts featured, Spotify UK May editorial calendar open for pitches until April 30 — priority pitching window. Virgin Music appointed Germany Country Director — first senior German hire, lowered submission threshold to 15,000 listeners.
+
+### France
+Les Inrockuptibles May special edition cover story candidate submitted April 28. Solidays Festival 2026 announced 38% independent acts — highest ratio in festival history, Believe acts should be positioned in May editorial to capitalise on festival momentum.
+
+### Upsell Pipeline
+1,020 Premium Solutions conversions in April — first month above 1,000. TuneCore onboarded 890 former CD Baby artists — monthly record for competitor-switching acquisitions. UMG lawsuit: motion for summary judgment filed — material development, timeline could accelerate. Sources: Believe internal data
