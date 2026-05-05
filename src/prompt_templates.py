@@ -1,9 +1,12 @@
 from typing import Dict, Any
-import re
+import json
+from pathlib import Path
 
 # -----------------------------
-# GLOBAL STYLES CONFIG
+# GLOBAL CONFIG
 # -----------------------------
+
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
 STYLES = {
     "thought_leadership": "insightful, expert-level, opinionated",
@@ -14,7 +17,22 @@ STYLES = {
 }
 
 # -----------------------------
-# VALIDATION HELPER
+# TEMPLATE LOADER
+# -----------------------------
+
+def load_template(template_name: str) -> str:
+    template_path = TEMPLATES_DIR / f"{template_name}.json"
+
+    if not template_path.exists():
+        raise FileNotFoundError(f"Template not found: {template_path}")
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return data["template"]
+
+# -----------------------------
+# VALIDATION
 # -----------------------------
 
 def validate_inputs(metadata: Dict[str, Any]):
@@ -25,16 +43,10 @@ def validate_inputs(metadata: Dict[str, Any]):
             raise ValueError(f"[PromptTemplates ERROR] Missing required field: {field}")
 
 # -----------------------------
-# STRUCTURED CONTEXT PARSER
+# CONTEXT PARSER
 # -----------------------------
 
 def parse_structured_context(context: str) -> Dict[str, str]:
-    """
-    Parses markdown sections like:
-    ### Overview
-    ### Financials
-    """
-
     sections = {}
     current_section = None
     buffer = []
@@ -58,7 +70,7 @@ def parse_structured_context(context: str) -> Dict[str, str]:
     return sections
 
 # -----------------------------
-# SECTION-SPECIFIC INSTRUCTIONS
+# SECTION INSTRUCTIONS
 # -----------------------------
 
 def get_section_instructions(section: str) -> str:
@@ -81,51 +93,27 @@ def build_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
     try:
         validate_inputs(metadata)
 
+        template = load_template("market_analysis")
+
         style = metadata.get("style", "thought_leadership")
         style_desc = STYLES.get(style, STYLES["thought_leadership"])
 
-        # Parse structured markdown context
         structured_context = parse_structured_context(metadata["context"])
 
-        # Build structured input block
         structured_block = ""
         for section_name, content in structured_context.items():
             structured_block += f"\n### {section_name}\n{content}\n"
 
-        # Section-specific instruction
         section_instruction = get_section_instructions(metadata["section"])
 
-        prompt = f"""
-You are a senior market intelligence analyst.
-
-SECTION TO WRITE: {metadata['section']}
-TIMEFRAME: {metadata.get('month', 'N/A')}
-MARKETS: {', '.join(metadata.get('markets', []))}
-
-----------------------------------------
-STRUCTURED INPUT DATA
-----------------------------------------
-{structured_block}
-
-----------------------------------------
-INSTRUCTIONS
-----------------------------------------
-- Write in a {style_desc} tone
-{section_instruction}
-- Focus ONLY on the requested section: {metadata['section']}
-- Extract insights from the most relevant sub-sections
-- Do NOT summarize everything — prioritize relevance
-- Be specific and insight-driven
-- Avoid generic statements
-- Highlight implications and trends
-
-Length: 200–250 words
-
-----------------------------------------
-OUTPUT
-----------------------------------------
-Structured paragraph with clear insights
-"""
+        prompt = template.format(
+            section=metadata["section"],
+            timeframe=metadata.get("month", "N/A"),
+            markets=", ".join(metadata.get("markets", [])),
+            structured_block=structured_block,
+            style_desc=style_desc,
+            section_instruction=section_instruction
+        )
 
         return {
             "section": metadata["section"],
@@ -137,44 +125,6 @@ Structured paragraph with clear insights
     except Exception as e:
         return {
             "section": metadata.get("section", "unknown"),
-            "error": str(e),
-            "success": False
-        }
-
-# -----------------------------
-# REFINEMENT PROMPT
-# -----------------------------
-
-def build_refinement_prompt(section: str, draft: str) -> Dict[str, Any]:
-
-    try:
-        prompt = f"""
-You are improving a report section.
-
-SECTION: {section}
-
-TASK:
-- Remove generic phrasing
-- Increase specificity
-- Strengthen insight quality
-
-CONTENT:
-{draft}
-
-OUTPUT:
-Improved version only
-"""
-
-        return {
-            "section": section,
-            "prompt": prompt.strip(),
-            "max_tokens": 400,
-            "temperature": 0.2  # deterministic refinement
-        }
-
-    except Exception as e:
-        return {
-            "section": section,
             "error": str(e),
             "success": False
         }
