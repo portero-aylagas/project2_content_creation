@@ -12,8 +12,6 @@ Streaming grew 7.8% YoY in Q4 2025. Deezer holds 28% market share — highest do
 ### Global
 IFPI preliminary data: global recorded music revenues grew 5.9% in 2025, down from 6.5% in 2024, confirming deceleration trend. Streaming growth slowed to 5.4% in 2025 vs 6.2% in 2024. Independent music ownership-basis market share reached 47.2% globally, up from 46.7% in 2024. Vinyl sales grew for 19th consecutive year. Sources: IFPI https://www.ifpi.org/resources/
 
----
-
 ## 2026 February
 
 ### Germany
@@ -28,8 +26,6 @@ Les Inrockuptibles digital edition received 1.4 million unique visitors — 23% 
 ### Global
 MIDiA Research confirmed independent music grew revenue share to 30.1% in 2025 — first time crossing 30% on a revenue basis. TikTok monthly active users in Europe reached 180 million with music content accounting for 38% of total engagement. AI-generated music detection tools flagged 34 million tracks across major platforms in January–February 2026. Sources: MIDiA Research https://www.midiaresearch.com/blog
 
----
-
 ## 2026 March
 
 ### Germany
@@ -43,8 +39,6 @@ SNEP Q1 2026: French-language music streams up 11.3% YoY — strongest quarterly
 
 ### Global
 IFPI Q1 2026: global streaming revenues grew 5.7% YoY, Europe leading at 6.3%. Superfan monetisation platforms reported combined Q1 2026 revenue of $820 million, up 28% YoY. TikTok-to-Spotify conversion rate for independent artists improved to 4.2% in March from 3.1% in March 2025. Sources: IFPI https://www.ifpi.org/resources/ — MIDiA Research https://www.midiaresearch.com/blog
-
----
 
 ## 2026 April
 

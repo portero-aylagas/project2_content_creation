@@ -9,8 +9,6 @@ Patreon reported 340,000 musicians earning from subscriptions in January 2026, u
 ### Industry Consolidation
 Major labels are systematically acquiring independent distribution infrastructure. Key acquisitions: UMG acquired CD Baby, FUGA, and Songtrust via $775M Downtown Music Holdings purchase (February 2026); Sony owns AWAL ($430M, 2021) and The Orchard (2015). MIDiA estimated 34,000 CD Baby artists actively evaluating alternative distributors following the acquisition. Believe's genuine independence becomes a stronger differentiator each time a previously "independent" platform is acquired by a major. Sources: Alera FM https://www.alera.fm/blog/who-owns-your-music-distributor-2026 — MIDiA Research https://www.midiaresearch.com/blog
 
----
-
 ## 2026 February
 
 ### Market Size
@@ -22,8 +20,6 @@ AI-generated music detection across platforms flagged 34 million tracks in Janua
 ### Industry Consolidation
 Independent Artist Coalition issued statement in February encouraging members to consider UMG's ownership of CD Baby when making distribution decisions. Artist manager community response to CD Baby's Heritage Artist Programme was largely negative, citing UMG ownership concerns. 🟢 Opportunity for Believe: artist migration from major-owned "independent-branded" platforms is accelerating. Sources: Independent Artist Coalition https://www.independentartistcoalition.com — Hypebot https://www.hypebot.com
 
----
-
 ## 2026 March
 
 ### Market Size
@@ -34,8 +30,6 @@ Superfan monetisation platforms reported combined Q1 2026 revenue of $820 millio
 
 ### Industry Consolidation
 Independent Artist Coalition launched "Distribution Transparency" campaign in March following the CD Baby acquisition, creating a public database of distributor ownership structures. Campaign reached 2.1 million social media impressions in its first week — high artist awareness of ownership consolidation issue. TuneCore and Believe identified as the most-recommended genuinely independent options in the database. Sources: Independent Artist Coalition https://www.independentartistcoalition.com
-
----
 
 ## 2026 April
 

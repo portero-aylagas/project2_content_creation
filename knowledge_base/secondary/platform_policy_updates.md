@@ -12,8 +12,6 @@ Artist-centric (user-centric) payment model expanded to France and Germany — e
 ### YouTube Music
 Launched "New Independent" weekly editorial playlist in Germany and France featuring 30 independent acts — Believe has editorial submission access via YouTube Music partnership. Impact on Believe: 🟢 Opportunity — submit candidates weekly in Germany and France to establish playlist presence. Sources: YouTube Music for Artists https://artists.youtube.com
 
----
-
 ## 2026 February
 
 ### Spotify
@@ -28,8 +26,6 @@ Algorithmic ranking update: increased weight given to "saves" and "playlist adds
 ### TikTok
 European Commission opened formal Digital Markets Act investigation into TikTok's algorithmic practices — expected to run 12 months, no service disruption expected in 2026. Impact on Believe: 🟡 Monitor — develop discovery strategies not relying solely on TikTok as contingency. Sources: European Commission https://ec.europa.eu
 
----
-
 ## 2026 March
 
 ### Spotify
@@ -43,8 +39,6 @@ Q1 2026 impact report published: artists in artist-centric model markets earned 
 
 ### YouTube Music
 "New Independent" playlist expanded to UK and added second weekly refresh — 60 independent act slots weekly across Germany, France, and UK. YouTube Creator Music partnership with Believe generated 1.2 million sync licensing micro-transactions in Q1 2026, up 34% vs Q1 2025. Impact on Believe: 🟢 Opportunity — 60 editorial slots per week across three markets accessible via Believe's partnership; submit candidates weekly in all three markets. Sources: YouTube Music for Artists https://artists.youtube.com
-
----
 
 ## 2026 April
 

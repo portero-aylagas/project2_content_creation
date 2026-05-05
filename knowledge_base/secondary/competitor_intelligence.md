@@ -15,8 +15,6 @@ Opened Paris office in January focused on French independent artists. Made 3 Fre
 ### TuneCore Internal
 TuneCore Accelerator enrolled 462,000 artists as of January 2026. Upsell to Premium Solutions: 890 conversions in January — monthly record. UMG lawsuit in discovery phase — no material developments. Sources: Believe internal data
 
----
-
 ## 2026 February
 
 ### DistroKid
@@ -34,8 +32,6 @@ Made 2 additional French indie électronique signings — total 5 French acts in
 ### TuneCore Internal
 940 upsell conversions — 6% above January record. Advancement rate improved to 1-in-4.7. UMG lawsuit entered mediation phase — no public statements from either party. Sources: Believe internal data
 
----
-
 ## 2026 March
 
 ### DistroKid
@@ -52,8 +48,6 @@ Signed French artist management company representing 12 independent French acts 
 
 ### TuneCore Internal
 Q1 2026 total conversions: 2,680 — up 31% vs Q1 2025. UMG lawsuit: mediation ended without resolution, returned to litigation. Sources: Believe internal data
-
----
 
 ## 2026 April
 

@@ -12,8 +12,6 @@ Dolby Atmos streams crossed 70% of all Apple Music plays in January — up from 
 ### YouTube Music and TikTok
 YouTube Music launched "New Independent" playlist in Germany and France featuring 30 independent acts weekly — Believe has editorial submission access. TikTok's Artist Impact Programme (Believe is a global partner) expanded to include a new "Weekly Rising" editorial slot featuring 10 independent acts weekly. Impact on Believe: 🟢 Opportunity — New Independent playlist is a new editorial slot Believe can pitch weekly in both Germany and France. Sources: YouTube Music for Artists https://artists.youtube.com — Wikipedia Believe https://en.wikipedia.org/wiki/Believe_Music
 
----
-
 ## 2026 February
 
 ### Spotify
@@ -27,8 +25,6 @@ Launched "Breakthrough" editorial programme in France and Germany offering 6-wee
 
 ### TikTok
 European Commission opened formal Digital Markets Act investigation into TikTok's algorithmic practices — expected to run 12 months. No service disruption expected in 2026. Impact on Believe: 🟡 Monitor — no immediate action required but develop discovery strategies not relying solely on TikTok in case of regulatory intervention. Sources: European Commission https://ec.europa.eu
-
----
 
 ## 2026 March
 
@@ -44,7 +40,6 @@ Published Q1 2026 impact report: artists in artist-centric model markets (France
 ### YouTube Music
 Expanded "New Independent" playlist to UK and added second weekly refresh — increasing from 30 to 60 independent act slots weekly across Germany, France, and UK. YouTube Creator Music partnership with Believe generated 1.2 million sync licensing micro-transactions in Q1 2026 — up 34% vs Q1 2025. Impact on Believe: 🟢 Opportunity — 60 editorial slots per week accessible across three markets via Believe's YouTube Music partnership. Sources: YouTube Music for Artists https://artists.youtube.com
 
----
 
 ## 2026 April
 
