@@ -20,7 +20,7 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
     print ( "############################## CONTEXT PAYLOAD ####################################")
     print(context_payload)
     print ( "########################## END OF CONTEXT PAYLOAD ####################################")
-    print ( "###########################################################################################")
+    print ( "########################################################################################")###")
     return {
         "report": {
             "full_text": context_payload["context"],
