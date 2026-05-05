@@ -1,15 +1,73 @@
-# Competitor Intelligence
+## 2026 January
 
-DistroKid was founded in 2013 by Philip Kaplan and is independently owned, valued at $1.3 billion in 2021. It charges approximately $22.99/year for unlimited releases with artists keeping 100% of royalties. It holds approximately 30% of the indie music distribution market and distributes to 150+ platforms. Speed is its core advantage: music live in 24–48 hours. Weaknesses are distribution only with no marketing or editorial relationships and heavily chatbot-driven customer support cited as a weakness by artists. Recent moves: introduced AI-powered mastering tools in 2024; pricing increased incrementally from $19.99 to $22.99. Competitive signal: medium threat. DistroKid competes with TuneCore (Believe's DIY product) not with Believe Premium Solutions. Its deliberate hands-off model creates the opportunity space that Believe's Premium Solutions fills for artists who outgrow DIY. Source: https://aristake.com/digital-distribution-comparison/
+### DistroKid
+Raised base plan price from $22.99 to $24.99 effective January 1 — second consecutive annual price increase. No new product features announced. Customer support complaints on social media increased 23% MoM. Competitive signal: 🟡 Medium — competes with TuneCore not Premium Solutions; price increase creates switching opportunity for TuneCore. Sources: DistroKid pricing https://distrokid.com/price
 
-AWAL (Artists Without A Label) is owned by Sony Music Group, acquired from Kobalt for $430 million in 2021. It accepts fewer than 10% of submissions, charges 15% commission with no upfront fees, and is powered by The Orchard's technology infrastructure. Services include distribution, playlist pitching, marketing, radio promotion, artist funding, sync licensing, and PR. Recent move: deployed AI-powered talent scouting system in 2024 to identify promising artists earlier, enabling earlier signings before artists become expensive. It is backed by Sony's direct editorial relationships at all major DSPs and is growing its European presence in UK and German markets. Competitive signal: high threat. AWAL is the most direct competitor to Believe Premium Solutions for growing independent artists in the 50,000–500,000 monthly listener tier. Believe's genuine independence is the primary counter-positioning against AWAL's Sony ownership. Sources: https://blog.landr.com/distrokid-alternatives/ — https://blog.soundraw.io/post/best-music-distribution-service-2024
+### AWAL
+Expanded Berlin A&R team with 2 new hires focused on German and European independent artist signings. AI talent scouting system flagged 340 German-market independent artists for outreach in January — up from 180 in October 2025. Sony increased AWAL European marketing budget estimated 18% for 2026. Competitive signal: 🔴 High — Berlin expansion directly targets Believe's primary growth market; Believe must accelerate Premium Solutions outreach to high-potential German acts before AWAL contacts them. Sources: MBW https://www.musicbusinessworldwide.com
 
-The Orchard is owned by Sony Music (fully acquired 2015) and generates over $1 billion in annual revenue. It focuses on independent labels rather than individual artists and provides technology infrastructure to AWAL. No major structural changes announced in 2024–2025. Competitive signal: medium threat. It focuses on labels rather than artists directly, which limits overlap with Believe's artist-facing Premium Solutions. Source: https://music.loop.fans/learn/music-distribution-companies-complete-reviews-and-comparisons-for-independent-artists-2025
+### CD Baby
+First full month under UMG ownership with no visible product or pricing changes. Three artist managers publicly moved rosters to TuneCore citing independence concerns — collectively 47 artists, 280,000 monthly Spotify listeners. Downtown Music Holdings confirmed existing contracts maintained through end of 2026 before UMG infrastructure migration. Competitive signal: 🟢 Opportunity — artist migration from CD Baby to genuinely independent platforms beginning; run targeted outreach to artists and managers who expressed independence concerns. Sources: Alera FM https://www.alera.fm/blog/who-owns-your-music-distributor-2026
 
-CD Baby is now owned by Universal Music Group following UMG's $775 million acquisition of Downtown Music Holdings (which also includes FUGA and Songtrust) completed in February 2026. Previously the oldest independent distributor, founded 1998, with a one-time per-release fee model and reputation for independence. Critical development: UMG now owns a major-label-backed "independent-branded" DIY platform alongside CD Baby's legacy reputation for independence. Artists who chose CD Baby specifically for independence may migrate to genuinely independent platforms. Competitive signal: high threat and high opportunity simultaneously. UMG brings major label resources to a previously independent platform (threat), but artists valuing independence may now migrate to TuneCore and Believe Artist Solutions (opportunity). Source: https://www.alera.fm/blog/who-owns-your-music-distributor-2026
+### Virgin Music Group
+Opened Paris office in January focused on French independent artists. Made 3 French independent signings. Competitive signal: 🟡 Medium — new competitive presence in Believe's strongest home market; monitor which French artists Virgin Music is approaching. Sources: MBW https://www.musicbusinessworldwide.com
 
-Virgin Music Group is Universal Music Group's dedicated independent artist and label services division. It houses The Orchard and other UMG-acquired independents and has a growing European presence. Competitive signal: medium threat, operates primarily above Believe's core target market but relevant for top-tier Premium Solutions artists who might be approached for major label adjacent deals.
+### TuneCore Internal
+TuneCore Accelerator enrolled 462,000 artists as of January 2026. Upsell to Premium Solutions: 890 conversions in January — monthly record. UMG lawsuit in discovery phase — no material developments. Sources: Believe internal data
 
-TuneCore internal watch: TuneCore is Believe's own DIY product but warrants monitoring as an internal competitive dynamic. The key strategic question is whether TuneCore Accelerator is successfully converting DIY artists into Premium Solutions clients or simply retaining them at the lower-margin DIY tier indefinitely. Key metrics to track monthly: TuneCore to Premium Solutions upsell conversion rate, Accelerator enrolment growth (currently 450,000+), and whether the 1-in-5 advancement rate is improving or static. Legal risk: UMG, ABKCO, and Concord filed a $500M+ copyright infringement lawsuit against Believe and TuneCore in November 2024. Case is active as of early 2026 with material reputational and financial implications.
+---
 
-Sources: Alera FM ownership map https://www.alera.fm/blog/who-owns-your-music-distributor-2026 — Revelator https://revelator.com/blog/navigating-music-distribution-in-2025 — LANDR https://blog.landr.com/distrokid-alternatives/ — Ari's Take https://aristake.com/digital-distribution-comparison/ — SOUNDRAW https://blog.soundraw.io/post/best-music-distribution-service-2024 — Omari MC https://www.omarimc.com/distrokid-alternatives/
+## 2026 February
+
+### DistroKid
+Introduced "DistroKid for Labels" tier at $89.99/year covering up to 5 artists — adds label management features but no editorial relationships or marketing support included. Competitive signal: 🟡 Medium — limited threat as DIY-only positioning remains; Believe's Premium Solutions differentiation intact. Sources: DistroKid pricing https://distrokid.com/price
+
+### AWAL
+Signed 8 independent artists from Germany and UK — highest monthly European signing rate since Sony acquisition in 2021. Three of 8 signed acts had been in Believe's pipeline. Ran targeted digital advertising specifically at artists with 40,000–100,000 monthly listeners — Believe's prime upsell segment. Competitive signal: 🔴 High — directly targeting Believe's core Premium Solutions prospect pool; Believe must shorten conversion timeline for artists in this listener range. Sources: MBW https://www.musicbusinessworldwide.com
+
+### CD Baby
+Launched "Heritage Artist Programme" for catalog artists with releases older than 5 years offering enhanced royalty rates — targeting older independent artists potentially unaware of UMG acquisition. Artist manager community response largely negative; Independent Artist Coalition issued statement encouraging members to consider UMG ownership in distribution decisions. Competitive signal: 🟢 Opportunity — UMG ownership becoming an active factor in artist distribution decisions; amplify TuneCore's genuine independence messaging in February and March marketing. Sources: Hypebot https://www.hypebot.com
+
+### Virgin Music Group
+Made 2 additional French indie électronique signings — total 5 French acts in 2 months. Virgin Music Germany opened for submissions targeting 20,000+ monthly listener acts. Competitive signal: 🔴 High — rapidly building competing rosters in both Believe's priority European markets. Sources: MBW https://www.musicbusinessworldwide.com
+
+### TuneCore Internal
+940 upsell conversions — 6% above January record. Advancement rate improved to 1-in-4.7. UMG lawsuit entered mediation phase — no public statements from either party. Sources: Believe internal data
+
+---
+
+## 2026 March
+
+### DistroKid
+Disclosed $120 million annual revenue for 2025 (up 22%) in Bloomberg interview. CEO confirmed potential IPO in 2027. No new product features. Competitive signal: 🟡 Medium — IPO ambition signals continued DIY tier commoditisation; Believe should emphasise TuneCore's marketing and analytics advantages. Sources: Bloomberg https://www.bloomberg.com
+
+### AWAL
+Published case study: AI scouting system identified 6 artists who grew to 500,000+ monthly listeners within 18 months — used as marketing asset to attract high-potential emerging artists. European roster grew to 340 acts, up from 290 in December 2025. Competitive signal: 🔴 High — AWAL's published AI success metrics are a direct competitive marketing tool against Believe's artist development story; Believe should develop and publish equivalent TuneCore Accelerator success metrics. Sources: AWAL https://www.awal.com — MBW https://www.musicbusinessworldwide.com
+
+### CD Baby
+Sent formal UMG ownership disclosure email to full artist roster. 34% of surveyed artists said they were considering switching distributors. Independent Artist Coalition reported 340% increase in distribution comparison tool queries in two weeks following the disclosure email. Competitive signal: 🟢 Opportunity — disclosure email triggered market-wide redistribution consideration moment; run targeted campaign in March and April specifically addressing artists looking to switch. Sources: Hypebot https://www.hypebot.com — Independent Artist Coalition https://www.independentartistcoalition.com
+
+### Virgin Music Group
+Signed French artist management company representing 12 independent French acts — largest single French roster acquisition. Competitive signal: 🔴 High — single transaction adds 12 former Believe France prospects to Virgin Music's roster. Sources: MBW https://www.musicbusinessworldwide.com
+
+### TuneCore Internal
+Q1 2026 total conversions: 2,680 — up 31% vs Q1 2025. UMG lawsuit: mediation ended without resolution, returned to litigation. Sources: Believe internal data
+
+---
+
+## 2026 April
+
+### DistroKid
+Announced Chartmetric analytics partnership for Plus subscribers ($35.99/year) — narrows analytics differentiation with TuneCore. Backstage still provides deeper data integrated with editorial relationship management tools. Competitive signal: 🟡 Medium — analytics gap narrowing but Believe's editorial access and human support remain unchallenged. Sources: DistroKid blog https://distrokid.com/blog
+
+### AWAL
+Launched dedicated electronic music division "AWAL Electronic" — signed 4 acts in first month including 1 from Believe's pipeline. Total European A&R team now 22 people, up from 14 in January. Competitive signal: 🔴 High — dedicated electronic division directly targets fastest-growing genre in Believe's key markets; fast-track all electronic acts in Believe's pipeline immediately. Sources: MBW https://www.musicbusinessworldwide.com
+
+### CD Baby
+Estimated 2,300 artists switched distributors in April — highest monthly switch rate since acquisition announcement. TuneCore onboarded 890 former CD Baby artists — monthly record for competitor-switching acquisitions. Competitive signal: 🟢 Opportunity — migration accelerating; sustain targeted outreach to CD Baby's independent-minded artist base through Q3 2026. Sources: Hypebot https://www.hypebot.com
+
+### Virgin Music Group
+Appointed Germany Country Director — first senior German market hire. Lowered submission threshold from 20,000 to 15,000 monthly listeners. Competitive signal: 🔴 High — accelerating land-grab strategy in Believe's key restructuring market. Sources: MBW https://www.musicbusinessworldwide.com
+
+### TuneCore Internal
+1,020 Premium Solutions conversions — first month above 1,000 milestone. 890 former CD Baby artists onboarded — monthly record. UMG lawsuit: UMG filed motion for summary judgment — if granted could significantly accelerate timeline. Sources: Believe internal data
