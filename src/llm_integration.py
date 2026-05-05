@@ -1,128 +1,70 @@
 import os
-
+from typing import Dict, Any, List
 from dotenv import load_dotenv
 from openai import OpenAI
 
+# -----------------------------
+# ENV SETUP
+# -----------------------------
 
-# Load variables from .env into the process environment.
-# This allows OPENAI_API_KEY to be read with os.getenv().
 load_dotenv()
-
-
-# Read the user-provided OpenAI API key.
 api_key = os.getenv("OPENAI_API_KEY")
 
-
-# Stop immediately if the key is missing.
-# Without this, the OpenAI call would fail later with a less clear error.
 if not api_key:
     raise ValueError("OPENAI_API_KEY is not set.")
 
-
-# Create a reusable OpenAI client.
-# Other functions in this module can use this same client.
 client = OpenAI(api_key=api_key)
 
+# -----------------------------
+# GLOBAL TOKEN TRACKING
+# -----------------------------
 
-def get_openai_models() -> list[str]:
-    """
-    Fetch the model IDs available to the configured OpenAI API key.
+USAGE_STATS = {
+    "total_tokens": 0,
+    "total_requests": 0
+}
 
-    Returns:
-        Sorted list of available OpenAI model IDs.
+# -----------------------------
+# MODEL DISCOVERY
+# -----------------------------
 
-    Notes:
-        The result depends on the API key being used.
-        Different users/accounts may have access to different models.
-    """
+def get_openai_models() -> List[str]:
     models = client.models.list()
-
-    # Extract only the model ID from each returned model object.
     return sorted(model.id for model in models.data)
 
 
 def categorize_model(model_id: str) -> str:
-    """
-    Assign an application-level category to one OpenAI model ID.
-
-    Args:
-        model_id:
-            Model ID returned by OpenAI, for example "gpt-4.1-mini".
-
-    Returns:
-        Category name used by the application.
-
-    Notes:
-        This categorization is based on model-name patterns.
-        It is not an official OpenAI category system.
-    """
     model = model_id.lower()
 
-    # Embedding models are used for semantic search/RAG, not direct text output.
     if "embedding" in model:
         return "embeddings"
-
-    # Speech-to-text / transcription models.
     if "whisper" in model or "transcribe" in model:
         return "speech_to_text"
-
-    # Text-to-speech or audio models.
     if "tts" in model or "audio" in model or "speech" in model:
         return "audio"
-
-    # Image generation or image-processing models.
     if "dall-e" in model or "image" in model or "gpt-image" in model:
         return "image"
-
-    # Moderation/safety classification models.
     if "moderation" in model:
         return "moderation"
-
-    # Realtime models are usually for streaming/voice use cases.
     if "realtime" in model:
         return "realtime"
-
-    # Reasoning models usually use names like o1, o3, or o4-mini.
     if model.startswith("o") and any(char.isdigit() for char in model):
         return "reasoning"
-
-    # Extra fallback for any explicitly named reasoning model.
     if "reasoning" in model:
         return "reasoning"
-
-    # Mini/nano models are usually smaller, faster, and cheaper.
     if "mini" in model or "nano" in model:
         return "cheap_text_generation"
-
-    # Preview/pro models are separated because they may be stronger,
-    # experimental, unstable, or more expensive.
     if "preview" in model or "pro" in model:
         return "strong_text_generation"
-
-    # General GPT models are treated as normal text-generation candidates.
     if model.startswith("gpt"):
         return "text_generation"
 
-    # Unknown models are kept separate so they can be hidden or reviewed.
     return "unknown"
 
 
-def get_categorized_openai_models() -> dict[str, list[str]]:
-    """
-    Fetch available OpenAI models and group them by application category.
-
-    Returns:
-        Dictionary mapping category names to lists of model IDs.
-
-    Example:
-        {
-            "cheap_text_generation": ["gpt-4.1-mini"],
-            "embeddings": ["text-embedding-3-small"]
-        }
-    """
+def get_categorized_openai_models() -> Dict[str, List[str]]:
     models = get_openai_models()
 
-    # Predefine all categories so models are grouped consistently.
     categories = {
         "cheap_text_generation": [],
         "text_generation": [],
@@ -137,35 +79,19 @@ def get_categorized_openai_models() -> dict[str, list[str]]:
         "unknown": [],
     }
 
-    # Categorize each available model and append it to its group.
     for model_id in models:
         category = categorize_model(model_id)
         categories[category].append(model_id)
 
-    # Remove empty categories before returning the result.
     return {
-        category: model_list
-        for category, model_list in categories.items()
-        if model_list
+        k: v for k, v in categories.items() if v
     }
 
 
-def get_summary_candidate_models() -> list[str]:
-    """
-    Return models that are usable for text editing and summarization.
-
-    Returns:
-        List of model IDs suitable for direct text-generation tasks.
-
-    Notes:
-        This excludes non-text-generation categories such as:
-        embeddings, audio, image, moderation, realtime, and unknown.
-    """
+def get_summary_candidate_models() -> List[str]:
     categorized = get_categorized_openai_models()
 
     candidates = []
-
-    # These are the categories relevant for summary and editing workflows.
     for category in [
         "cheap_text_generation",
         "text_generation",
@@ -175,3 +101,83 @@ def get_summary_candidate_models() -> list[str]:
         candidates.extend(categorized.get(category, []))
 
     return candidates
+
+# -----------------------------
+# OPTIONAL: SMART DEFAULT MODEL
+# -----------------------------
+
+def get_default_model() -> str:
+    candidates = get_summary_candidate_models()
+
+    for preferred in ["gpt-4.1", "gpt-4.1-mini"]:
+        if preferred in candidates:
+            return preferred
+
+    return candidates[0] if candidates else "gpt-4.1"
+
+# -----------------------------
+# LLM GENERATION FUNCTION
+# -----------------------------
+
+def generate_text(
+    prompt_obj: Dict[str, Any],
+    model: str = None,
+    temperature: float = 0.2
+) -> Dict[str, Any]:
+
+    if "error" in prompt_obj:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": f"Invalid prompt: {prompt_obj['error']}"
+        }
+
+    # Select model dynamically if not provided
+    if model is None:
+        model = get_default_model()
+
+    # Allow prompt_obj to override temperature
+    final_temperature = prompt_obj.get("temperature", temperature)
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You generate high-quality, non-generic business content."},
+                {"role": "user", "content": prompt_obj["prompt"]}
+            ],
+            max_tokens=prompt_obj.get("max_tokens", 600),
+            temperature=final_temperature
+        )
+
+        content = response.choices[0].message.content.strip()
+
+        usage = response.usage
+        tokens_used = usage.total_tokens if usage else 0
+
+        # Track usage globally
+        USAGE_STATS["total_tokens"] += tokens_used
+        USAGE_STATS["total_requests"] += 1
+
+        return {
+            "section": prompt_obj.get("section"),
+            "generated_text": content,
+            "tokens_used": tokens_used,
+            "model_used": model,
+            "temperature_used": final_temperature,
+            "success": True
+        }
+
+    except Exception as e:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": str(e)
+        }
+
+# -----------------------------
+# USAGE STATS FUNCTION
+# -----------------------------
+
+def get_usage_stats() -> Dict[str, Any]:
+    return USAGE_STATS
