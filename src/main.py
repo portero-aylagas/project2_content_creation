@@ -118,8 +118,8 @@ def submit_report_request(
         )
 
     status_message = (
-        "Report generated through the content pipeline. "
-        f"Sections: {pipeline_response['metadata'].get('sections_generated', 0)}."
+        "Report generated through the content pipeline and LLM integration. "
+        f"Model: {pipeline_response['metadata'].get('model_used', 'unknown')}."
     )
 
     return (
@@ -142,7 +142,7 @@ def submit_feedback_request(
     """
     if not generated_report_text.strip():
         return (
-            "WARNING: Generate the mock report before applying feedback.",
+            "WARNING: Generate the report before applying feedback.",
             "",
             "",
         )

@@ -4,6 +4,7 @@ from datetime import date
 
 from document_processor import load_knowledge_base
 from knowledge_base import get_section_context
+from llm_integration import generate_text
 from prompt_templates import build_feedback_prompt, build_prompt
 
 MARKET_NAME_MAP = {
@@ -58,6 +59,8 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         "report_depth": str(report_request.get("report_depth", "")),
         "audience": str(report_request.get("audience", "")),
         "style": str(report_request.get("style", "")),
+        "model": str(report_request.get("model", "")),
+        "temperature": float(report_request.get("temperature", 0.2)),
     }
 
     kb_markets = [
@@ -92,46 +95,69 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         }
     )
 
-    print(prompt_payload)
-
     if prompt_payload.get("error"):
         raise RuntimeError(prompt_payload["error"])
 
+    prompt_payload["temperature"] = normalized_request["temperature"]
+    llm_response = generate_text(
+        prompt_payload,
+        model=normalized_request["model"] or None,
+        temperature=normalized_request["temperature"],
+    )
+
+    if not llm_response.get("success"):
+        raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
+
+    generated_text = str(llm_response.get("generated_text", ""))
+
     return {
         "report": {
-            "full_text": combined_context,
-            "word_count": len(combined_context.split()),
+            "full_text": generated_text,
+            "word_count": len(generated_text.split()),
             "sections": normalized_request["sections"],
         },
         "prompt": prompt_payload,
+        "combined_context": combined_context,
+        "llm_response": llm_response,
         "metadata": {
             "generated_on": date.today().isoformat(),
             "sections_selected": normalized_request["sections"],
             "markets_selected": normalized_request["markets"],
             "report_period": normalized_request["report_period"],
+            "model_used": llm_response.get("model_used", normalized_request["model"]),
+            "temperature_used": llm_response.get(
+                "temperature_used", normalized_request["temperature"]
+            ),
+            "tokens_used": llm_response.get("tokens_used", 0),
+            "cost_usd": llm_response.get("cost_usd", 0.0),
         },
     }
 
 
 def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
     """
-    Rebuild the selected knowledge-base context from the original inputs and
-    attach the submitted feedback to the metadata.
+    Build a feedback prompt from the original generated report and send it to
+    the LLM to produce a revised version.
     """
     original_inputs = feedback_request.get("original_inputs", {})
+    original_report_text = str(feedback_request.get("original_report_text", ""))
 
     if not isinstance(original_inputs, dict):
         raise TypeError("Feedback field 'original_inputs' must be a dict payload.")
 
-    regenerated_report = generate_report(original_inputs)
+    if not original_report_text.strip():
+        raise ValueError("Feedback field 'original_report_text' is required.")
+
+    model = str(original_inputs.get("model", ""))
+    temperature = float(original_inputs.get("temperature", 0.2))
     feedback_prompt_payload = build_feedback_prompt(
         {
             "section": "combined_report",
-            "sections": regenerated_report["metadata"]["sections_selected"],
-            "context": regenerated_report["report"]["full_text"],
-            "month": regenerated_report["metadata"]["report_period"],
+            "sections": original_inputs.get("sections", []),
+            "context": original_report_text,
+            "month": str(original_inputs.get("report_period", "")),
             "year": str(original_inputs.get("year", "")),
-            "markets": regenerated_report["metadata"]["markets_selected"],
+            "markets": original_inputs.get("markets", []),
             "report_depth": str(original_inputs.get("report_depth", "")),
             "audience": str(original_inputs.get("audience", "")),
             "style": str(original_inputs.get("style", "")),
@@ -143,8 +169,37 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
     if feedback_prompt_payload.get("error"):
         raise RuntimeError(feedback_prompt_payload["error"])
 
-    regenerated_report["metadata"]["feedback_text"] = str(
-        feedback_request.get("feedback_text", "")
+    feedback_prompt_payload["temperature"] = temperature
+    llm_response = generate_text(
+        feedback_prompt_payload,
+        model=model or None,
+        temperature=temperature,
     )
-    regenerated_report["feedback_prompt"] = feedback_prompt_payload
-    return regenerated_report
+
+    if not llm_response.get("success"):
+        raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
+
+    revised_text = str(llm_response.get("generated_text", ""))
+
+    return {
+        "report": {
+            "full_text": revised_text,
+            "word_count": len(revised_text.split()),
+            "sections": list(original_inputs.get("sections", [])),
+        },
+        "feedback_prompt": feedback_prompt_payload,
+        "llm_response": llm_response,
+        "metadata": {
+            "generated_on": date.today().isoformat(),
+            "sections_selected": list(original_inputs.get("sections", [])),
+            "markets_selected": list(original_inputs.get("markets", [])),
+            "report_period": str(original_inputs.get("report_period", "")),
+            "feedback_text": str(feedback_request.get("feedback_text", "")),
+            "model_used": llm_response.get("model_used", model),
+            "temperature_used": llm_response.get(
+                "temperature_used", temperature
+            ),
+            "tokens_used": llm_response.get("tokens_used", 0),
+            "cost_usd": llm_response.get("cost_usd", 0.0),
+        },
+    }
