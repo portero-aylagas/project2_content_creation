@@ -36,8 +36,7 @@ SECTION_OPTIONS = [
     "platform_updates",
     "competitor_intelligence",
     "independent_artist_economy",
-    "market_opportunities",
-    "data_sources_used",
+    "market_opportunities"
 ]
 FEEDBACK_SCOPE_OPTIONS = ["full_report", "single_section"]
 
