@@ -129,6 +129,21 @@ def _get_length_instruction(report_depth: str) -> str:
     )
 
 
+def _render_section_feedback(section_feedback: object) -> str:
+    if isinstance(section_feedback, dict) and section_feedback:
+        lines = []
+        for section_name, feedback_text in section_feedback.items():
+            lines.append(
+                f"- {str(section_name).replace('_', ' ').title()}: {str(feedback_text)}"
+            )
+        return "\n".join(lines)
+
+    if isinstance(section_feedback, str) and section_feedback.strip():
+        return section_feedback.strip()
+
+    return "No section-specific feedback provided."
+
+
 # -----------------------------
 # MAIN PROMPT BUILDER
 # -----------------------------
@@ -189,29 +204,33 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
 
 def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
     try:
-        validate_inputs(metadata)
+        validate_inputs(
+            metadata,
+            required_fields=["original_prompt", "generated_content"],
+        )
 
         template = load_template("feedback_prompt")
         style = str(metadata.get("style", "thought_leadership"))
         style_desc = STYLES.get(style, STYLES["thought_leadership"])
         section_scope = _get_section_scope(metadata)
         section_instruction = _get_section_instruction_block(metadata)
-        markets = metadata.get("markets", [])
-        market_list = ", ".join(str(market) for market in markets)
         report_depth = str(metadata.get("report_depth", "standard"))
         audience = str(metadata.get("audience", ""))
         length_instruction = _get_length_instruction(report_depth)
+        general_feedback = str(
+            metadata.get("general_feedback", "")
+        ).strip() or "No general feedback provided."
+        section_feedback_block = _render_section_feedback(
+            metadata.get("section_feedback", {})
+        )
 
         prompt_values = {
             "section": str(metadata.get("section", section_scope)),
             "section_scope": section_scope,
-            "timeframe": str(metadata.get("month", "N/A")),
-            "markets": market_list,
-            "combined_context": str(metadata.get("context", "")),
-            "context": str(metadata.get("context", "")),
-            "user_feedback": str(
-                metadata.get("user_feedback", metadata.get("feedback_text", ""))
-            ),
+            "original_prompt": str(metadata.get("original_prompt", "")),
+            "generated_content": str(metadata.get("generated_content", "")),
+            "general_feedback": general_feedback,
+            "section_feedback_block": section_feedback_block,
             "style": style,
             "style_desc": style_desc,
             "section_instruction": section_instruction,

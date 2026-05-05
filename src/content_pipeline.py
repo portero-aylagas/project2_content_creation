@@ -141,6 +141,7 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
     """
     original_inputs = feedback_request.get("original_inputs", {})
     original_report_text = str(feedback_request.get("original_report_text", ""))
+    original_prompt = str(feedback_request.get("original_prompt", ""))
 
     if not isinstance(original_inputs, dict):
         raise TypeError("Feedback field 'original_inputs' must be a dict payload.")
@@ -148,21 +149,34 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
     if not original_report_text.strip():
         raise ValueError("Feedback field 'original_report_text' is required.")
 
-    model = str(original_inputs.get("model", ""))
-    temperature = float(original_inputs.get("temperature", 0.2))
+    if not original_prompt.strip():
+        raise ValueError("Feedback field 'original_prompt' is required.")
+
+    model = str(feedback_request.get("model", original_inputs.get("model", "")))
+    temperature = float(
+        feedback_request.get("temperature", original_inputs.get("temperature", 0.2))
+    )
+    report_depth = str(
+        feedback_request.get(
+            "report_depth", original_inputs.get("report_depth", "")
+        )
+    )
+    audience = str(
+        feedback_request.get("audience", original_inputs.get("audience", ""))
+    )
+    style = str(feedback_request.get("style", original_inputs.get("style", "")))
     feedback_prompt_payload = build_feedback_prompt(
         {
             "section": "combined_report",
             "sections": original_inputs.get("sections", []),
-            "context": original_report_text,
-            "month": str(original_inputs.get("report_period", "")),
-            "year": str(original_inputs.get("year", "")),
-            "markets": original_inputs.get("markets", []),
-            "report_depth": str(original_inputs.get("report_depth", "")),
-            "audience": str(original_inputs.get("audience", "")),
-            "style": str(original_inputs.get("style", "")),
+            "original_prompt": original_prompt,
+            "generated_content": original_report_text,
+            "report_depth": report_depth,
+            "audience": audience,
+            "style": style,
             "feedback_text": str(feedback_request.get("feedback_text", "")),
-            "user_feedback": str(feedback_request.get("feedback_text", "")),
+            "general_feedback": str(feedback_request.get("general_feedback", "")),
+            "section_feedback": feedback_request.get("section_feedback", {}),
         }
     )
 
@@ -195,6 +209,8 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
             "markets_selected": list(original_inputs.get("markets", [])),
             "report_period": str(original_inputs.get("report_period", "")),
             "feedback_text": str(feedback_request.get("feedback_text", "")),
+            "general_feedback": str(feedback_request.get("general_feedback", "")),
+            "section_feedback": feedback_request.get("section_feedback", {}),
             "model_used": llm_response.get("model_used", model),
             "temperature_used": llm_response.get(
                 "temperature_used", temperature

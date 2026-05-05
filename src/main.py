@@ -133,7 +133,13 @@ def submit_report_request(
 def submit_feedback_request(
     generated_report_text: str,
     report_request_json: str,
+    pipeline_response_json: str,
     general_feedback_text: str,
+    report_depth: str,
+    audience: str,
+    style: str,
+    selected_model: str,
+    temperature: float,
     *section_feedback_values: str,
 ) -> tuple[str, str, str]:
     """
@@ -165,6 +171,10 @@ def submit_feedback_request(
         )
 
     original_inputs = json.loads(report_request_json)
+    pipeline_response = json.loads(pipeline_response_json)
+    original_prompt = str(
+        pipeline_response.get("prompt", {}).get("prompt", "")
+    )
     feedback_parts = []
 
     if general_feedback_text:
@@ -175,20 +185,18 @@ def submit_feedback_request(
             f"Section feedback for {section_name}:\n{feedback_text}"
         )
 
-    feedback_scope = "full_report"
-    feedback_target_section = ""
-    if len(section_feedback) == 1 and not general_feedback_text:
-        feedback_scope = "single_section"
-        feedback_target_section = next(iter(section_feedback))
-
     feedback_request = {
         "original_report_text": generated_report_text,
+        "original_prompt": original_prompt,
         "original_inputs": original_inputs,
         "feedback_text": "\n\n".join(feedback_parts),
-        "scope": feedback_scope,
-        "target_section": feedback_target_section,
         "general_feedback": general_feedback_text,
         "section_feedback": section_feedback,
+        "report_depth": report_depth,
+        "audience": audience,
+        "style": style,
+        "model": selected_model,
+        "temperature": temperature,
     }
 
     print("Generated feedback request:", feedback_request, flush=True)
@@ -202,7 +210,10 @@ def submit_feedback_request(
             "",
         )
 
-    status_message = "Feedback applied through the iterate pipeline."
+    status_message = (
+        "Feedback applied through the iterate pipeline and LLM integration. "
+        f"Model: {revised_response['metadata'].get('model_used', 'unknown')}."
+    )
 
     return (
         status_message,
@@ -449,7 +460,13 @@ def main():
             inputs=[
                 report_output,
                 report_request_output,
+                json_output,
                 general_feedback_textbox,
+                report_depth_dropdown,
+                audience_dropdown,
+                style_selector,
+                model_dropdown,
+                temperature_slider,
                 *section_feedback_boxes,
             ],
             outputs=[
