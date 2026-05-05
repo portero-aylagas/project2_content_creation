@@ -1,5 +1,7 @@
 import os
-from typing import Dict, Any, List
+from functools import lru_cache
+from typing import Any, Dict, List, Optional
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -8,12 +10,15 @@ from openai import OpenAI
 # -----------------------------
 
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
+API_KEY = os.getenv("OPENAI_API_KEY")
+_OPENAI_CLIENT: Optional[OpenAI] = None
 
-if not api_key:
-    raise ValueError("OPENAI_API_KEY is not set.")
-
-client = OpenAI(api_key=api_key)
+FALLBACK_MODEL_IDS = [
+    "gpt-4.1-mini",
+    "gpt-4.1",
+    "o4-mini",
+    "o3-mini",
+]
 
 # -----------------------------
 # GLOBAL TOKEN + COST TRACKING
@@ -22,16 +27,35 @@ client = OpenAI(api_key=api_key)
 USAGE_STATS = {
     "total_tokens": 0,
     "total_requests": 0,
-    "total_cost_usd": 0.0
+    "total_cost_usd": 0.0,
 }
+
+
+def _get_client() -> OpenAI:
+    global _OPENAI_CLIENT
+
+    if _OPENAI_CLIENT is not None:
+        return _OPENAI_CLIENT
+
+    if not API_KEY:
+        raise RuntimeError("OPENAI_API_KEY is not set.")
+
+    _OPENAI_CLIENT = OpenAI(api_key=API_KEY)
+    return _OPENAI_CLIENT
 
 # -----------------------------
 # MODEL DISCOVERY
 # -----------------------------
 
 def get_openai_models() -> List[str]:
-    models = client.models.list()
-    return sorted(model.id for model in models.data)
+    if not API_KEY:
+        return list(FALLBACK_MODEL_IDS)
+
+    try:
+        models = _get_client().models.list()
+        return sorted(model.id for model in models.data)
+    except Exception:
+        return list(FALLBACK_MODEL_IDS)
 
 
 def categorize_model(model_id: str) -> str:
@@ -156,6 +180,18 @@ def calculate_cost_from_usage(usage, model: str) -> float:
 
     return round(input_cost + output_cost, 6)
 
+
+def _normalize_generation_request(
+    prompt_obj: Dict[str, Any],
+) -> Dict[str, Any]:
+    if not isinstance(prompt_obj, dict):
+        raise TypeError("Prompt payload must be a dict.")
+
+    if not prompt_obj.get("prompt"):
+        raise ValueError("Prompt payload is missing 'prompt'.")
+
+    return prompt_obj
+
 # -----------------------------
 # LLM GENERATION FUNCTION
 # -----------------------------
@@ -165,7 +201,6 @@ def generate_text(
     model: str = None,
     temperature: float = 0.2
 ) -> Dict[str, Any]:
-
     if "error" in prompt_obj:
         return {
             "section": prompt_obj.get("section"),
@@ -173,13 +208,15 @@ def generate_text(
             "error": f"Invalid prompt: {prompt_obj['error']}"
         }
 
+    prompt_obj = _normalize_generation_request(prompt_obj)
+
     if model is None:
         model = get_default_model()
 
     final_temperature = prompt_obj.get("temperature", temperature)
 
     try:
-        response = client.chat.completions.create(
+        response = _get_client().chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content": "You generate high-quality, non-generic business content."},
@@ -216,6 +253,11 @@ def generate_text(
             "success": False,
             "error": str(e)
         }
+
+
+def generate_section(prompt_obj: Dict[str, Any]) -> Dict[str, Any]:
+    """Backward-compatible wrapper expected by content_pipeline."""
+    return generate_text(prompt_obj)
 
 # -----------------------------
 # USAGE STATS FUNCTION
