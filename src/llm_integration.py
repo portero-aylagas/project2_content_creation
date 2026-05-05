@@ -16,12 +16,13 @@ if not api_key:
 client = OpenAI(api_key=api_key)
 
 # -----------------------------
-# GLOBAL TOKEN TRACKING
+# GLOBAL TOKEN + COST TRACKING
 # -----------------------------
 
 USAGE_STATS = {
     "total_tokens": 0,
-    "total_requests": 0
+    "total_requests": 0,
+    "total_cost_usd": 0.0
 }
 
 # -----------------------------
@@ -83,9 +84,7 @@ def get_categorized_openai_models() -> Dict[str, List[str]]:
         category = categorize_model(model_id)
         categories[category].append(model_id)
 
-    return {
-        k: v for k, v in categories.items() if v
-    }
+    return {k: v for k, v in categories.items() if v}
 
 
 def get_summary_candidate_models() -> List[str]:
@@ -103,7 +102,7 @@ def get_summary_candidate_models() -> List[str]:
     return candidates
 
 # -----------------------------
-# OPTIONAL: SMART DEFAULT MODEL
+# DEFAULT MODEL
 # -----------------------------
 
 def get_default_model() -> str:
@@ -114,6 +113,48 @@ def get_default_model() -> str:
             return preferred
 
     return candidates[0] if candidates else "gpt-4.1"
+
+# -----------------------------
+# MODEL PRICING (USD per 1K tokens)
+# -----------------------------
+
+MODEL_PRICING = {
+    "gpt-4.1": {"input": 0.01, "output": 0.03},
+    "gpt-4.1-mini": {"input": 0.002, "output": 0.006},
+
+    "cheap_text_generation": {"input": 0.001, "output": 0.002},
+    "text_generation": {"input": 0.005, "output": 0.015},
+    "strong_text_generation": {"input": 0.01, "output": 0.03},
+    "reasoning": {"input": 0.02, "output": 0.06},
+
+    "embeddings": {"input": 0.0001, "output": 0.0001},
+}
+
+# -----------------------------
+# COST CALCULATION
+# -----------------------------
+
+def calculate_cost_from_usage(usage, model: str) -> float:
+    if not usage:
+        return 0.0
+
+    input_tokens = getattr(usage, "prompt_tokens", 0)
+    output_tokens = getattr(usage, "completion_tokens", 0)
+
+    # Exact model pricing
+    if model in MODEL_PRICING:
+        pricing = MODEL_PRICING[model]
+    else:
+        category = categorize_model(model)
+        pricing = MODEL_PRICING.get(category)
+
+    if not pricing:
+        raise ValueError(f"No pricing found for model: {model}")
+
+    input_cost = (input_tokens / 1000) * pricing["input"]
+    output_cost = (output_tokens / 1000) * pricing["output"]
+
+    return round(input_cost + output_cost, 6)
 
 # -----------------------------
 # LLM GENERATION FUNCTION
@@ -132,11 +173,9 @@ def generate_text(
             "error": f"Invalid prompt: {prompt_obj['error']}"
         }
 
-    # Select model dynamically if not provided
     if model is None:
         model = get_default_model()
 
-    # Allow prompt_obj to override temperature
     final_temperature = prompt_obj.get("temperature", temperature)
 
     try:
@@ -154,15 +193,18 @@ def generate_text(
 
         usage = response.usage
         tokens_used = usage.total_tokens if usage else 0
+        cost = calculate_cost_from_usage(usage, model)
 
-        # Track usage globally
+        # Global tracking
         USAGE_STATS["total_tokens"] += tokens_used
         USAGE_STATS["total_requests"] += 1
+        USAGE_STATS["total_cost_usd"] += cost
 
         return {
             "section": prompt_obj.get("section"),
             "generated_text": content,
             "tokens_used": tokens_used,
+            "cost_usd": cost,
             "model_used": model,
             "temperature_used": final_temperature,
             "success": True
@@ -180,4 +222,14 @@ def generate_text(
 # -----------------------------
 
 def get_usage_stats() -> Dict[str, Any]:
-    return USAGE_STATS
+    return {
+        **USAGE_STATS,
+        "avg_tokens_per_request": (
+            USAGE_STATS["total_tokens"] / USAGE_STATS["total_requests"]
+            if USAGE_STATS["total_requests"] > 0 else 0
+        ),
+        "avg_cost_per_request": (
+            USAGE_STATS["total_cost_usd"] / USAGE_STATS["total_requests"]
+            if USAGE_STATS["total_requests"] > 0 else 0
+        )
+    }
