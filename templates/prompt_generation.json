@@ -43,7 +43,14 @@
     "----------------------------------------",
     "OUTPUT",
     "----------------------------------------",
-    "Return ONLY the final improved version.",
+    "Return ONLY the final improved version as valid Markdown.",
+    "Use this structure exactly:",
+    "# BELIEVE MARKET INTELLIGENCE REPORT",
+    "## Subject",
+    "## Executive Summary",
+    "## Main Analysis",
+    "## Key Takeaways",
+    "## Recommended Actions",
     "Do NOT show intermediate steps."
   ],
   "feedback_prompt": [
@@ -113,7 +120,9 @@
     "----------------------------------------",
     "OUTPUT",
     "----------------------------------------",
-    "Return ONLY the final improved version.",
+    "Return ONLY the revised final version as valid Markdown.",
+    "Keep the same document structure and heading hierarchy as the previous generated content unless feedback explicitly requests structural changes.",
+    "Use clear Markdown headings, short paragraphs, and bullet points when useful.",
     "Do NOT show analysis, steps, or explanations."
   ]
 }

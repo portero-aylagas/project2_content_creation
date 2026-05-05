@@ -19,13 +19,16 @@ MONTH_OPTIONS = [
 YEAR_OPTIONS = ["2026"]
 
 REPORT_DEPTH_OPTIONS = [
-    "short: 200-300 words",
     "standard: 500-700 words",
+    "short: 200-300 words",
     "detailed: 2500-3000 words",
 ]
+
 AUDIENCE_OPTIONS = [
-    "strategy",
-    "artist_solutions",
+    "casual music fan",
+    "fan with industry knowledge",
+    "artist manager",
+    "artist",
     "executive",
 ]
 
@@ -44,6 +47,23 @@ STYLES = {
     "contrarian": "challenging assumptions, bold perspective",
     "minimalist": "concise, sharp, high-signal"
 }
+
+DOCUMENT_FRAME_CSS = """
+.report-document {
+  border: 1px solid #d5d9e0;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+  max-height: 640px;
+  overflow-y: auto;
+}
+
+.report-document p,
+.report-document li {
+  line-height: 1.7;
+}
+"""
 
 
 def build_report_request(
@@ -266,7 +286,7 @@ def main():
     default_year = str(current_date.year)
     default_month = "April" # ToDO read dynamically based on current_date.month
 
-    with gr.Blocks() as demo:
+    with gr.Blocks(css=DOCUMENT_FRAME_CSS) as demo:
         gr.Markdown("# Believe Market Intelligence Report Generator")
         gr.Markdown(
             "Choose the report month, markets, sections, and LLM settings."
@@ -336,7 +356,7 @@ def main():
             with gr.Row():
                 report_depth_dropdown = gr.Dropdown(
                     choices=REPORT_DEPTH_OPTIONS,
-                    value="standard: 500-700 words",
+                    value=REPORT_DEPTH_OPTIONS[0],
                     label="Report Depth",
                     info="Controls the intended output length and level of detail.",
                     interactive=True,
@@ -344,7 +364,7 @@ def main():
 
                 audience_dropdown = gr.Dropdown(
                     choices=AUDIENCE_OPTIONS,
-                    value="strategy",
+                    value=AUDIENCE_OPTIONS[0],
                     label="Audience",
                     info="Controls the framing of the output for the target reader.",
                     interactive=True,
@@ -372,11 +392,9 @@ def main():
             language="json",
             interactive=False,
         )
-        report_output = gr.Textbox(
+        report_output = gr.Markdown(
             label="Generated Report",
-            lines=24,
-            max_lines=40,
-            interactive=False,
+            elem_classes=["report-document"],
         )
         json_output = gr.Code(
             label="Content Pipeline JSON",
@@ -416,11 +434,9 @@ def main():
             label="Iterate Status",
             interactive=False,
         )
-        revised_report_output = gr.Textbox(
+        revised_report_output = gr.Markdown(
             label="Revised Report",
-            lines=24,
-            max_lines=40,
-            interactive=False,
+            elem_classes=["report-document"],
         )
         revised_json_output = gr.Code(
             label="Iterate JSON",
