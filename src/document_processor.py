@@ -52,9 +52,5 @@ def read_file_base(file):
     return sections
 
 if __name__ == "__main__":
-    file = Path("test_file.md")
-    dict_file = read_file_base(file)
-    print(dict_file)
-
-    # knowledge_base = load_knowledge_base()
+    knowledge_base = load_knowledge_base()
     # print(knowledge_base)
