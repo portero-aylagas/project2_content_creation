@@ -2,3 +2,4 @@ openai
 python-dotenv
 gradio
 pathlib
+os

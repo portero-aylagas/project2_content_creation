@@ -1,17 +1,17 @@
-### Identity
+# Identity
 Name: Believe Market Intelligence Report. Frequency: monthly. Audience: Believe internal strategy team and Artist Solutions managers. Markets: Germany, UK, France (primary) with global highlights. Tone: professional, data-driven, concise — every sentence must contain a fact, an insight, or an action recommendation. Length: 800–1,200 words readable in 5 minutes.
 
-### Section Order
+# Section Order
 Section 1 — Executive Summary: 3–4 sentences maximum, plain prose, no bullets. States the 3 most important things that happened this month across markets, competition, and platforms. Answers what this means for Believe specifically. Ends with one specific recommended action. Section 2 — Market Trends: 200–250 words, one paragraph per market (Germany, UK, France) then a Global Highlights paragraph. Every paragraph opens with a specific statistic. Includes platform market shares, genre trends, media landscape notes. Market order is always Germany then UK then France. Section 3 — Platform Updates: 150–200 words, bullet format, one bullet per platform update covering Spotify, Apple Music, Deezer, YouTube Music, TikTok. Each bullet is 2–3 sentences closing with 🟢 Opportunity, 🟡 Monitor, or 🔴 Risk for Believe. Section 4 — Competitor Intelligence: 200–250 words, one paragraph per competitor covering DistroKid, AWAL and The Orchard, CD Baby, Virgin Music Group, TuneCore internal watch. Each paragraph covers recent moves and closes with 🔴 High, 🟡 Medium, or 🟢 Low threat rating. Section 5 — Independent Artist Economy: 150–200 words plain prose, key statistics bolded using markdown, covers independent market share movement, artist earnings data, emerging revenue models, distribution volume trends. Section 6 — Market Opportunities: exactly 3 numbered opportunities, each with a bold name, 1–2 sentences of data evidence, and 1 sentence of recommended Believe action specific to Believe's business model. Section 7 — Data Sources Used: bullet list of every source referenced with name, URL, and date accessed.
 
-### Formatting Rules
+# Formatting Rules
 Always lead with data — never open a section with a general observation. Name names — reference specific platforms, artists, companies, and markets; never say "a major platform" when you mean Spotify. Every trend needs a number — "growing" is not enough, "growing 8.2% YoY" is acceptable. One insight per paragraph. At least one actionable recommendation per section. No filler phrases including "it is worth noting", "it is interesting that", "as we can see". Consistent market order: always Germany then UK then France. Flag every competitor move with the red, yellow, green system in Section 4. Never use the word "interesting" or "notable".
 
-### Report Header
+# Report Header
 BELIEVE MARKET INTELLIGENCE REPORT / Month: [MONTH YEAR] / Generated: [DATE] / Markets: Germany | UK | France / Sources: [NUMBER] data points reviewed / ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-### Quality Checklist
+# Quality Checklist
 Executive summary under 4 sentences. Every market section has at least 2 statistics. Every platform update has a flag. Every competitor section has a threat rating. Section 6 has exactly 3 opportunities with recommended actions. All sources listed in Section 7. Word count 800–1,200. No section uses "interesting" or "notable".
 
-### Monthly Source List
+# Monthly Source List
 IFPI https://www.ifpi.org/resources/ — MIDiA Research https://www.midiaresearch.com/blog — Music Business Worldwide https://www.musicbusinessworldwide.com — Spotify for Artists https://artists.spotify.com/blog — Hypebot https://www.hypebot.com — BPI UK https://www.bpi.co.uk/industry-insights — BVMI Germany https://www.musikindustrie.de/en — SNEP France https://www.snepmusique.com/en — Apple Music for Artists https://artists.apple.com — Deezer newsroom https://www.deezer.com/en/company/news
