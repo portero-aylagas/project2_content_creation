@@ -62,5 +62,4 @@ def read_file_base(file_path):
 
 if __name__ == "__main__":
     path = Path("knowledge_base/secondary/market_trends_DE_UK_FR.md")
-    read_file = read_file_base(path)
-    print(read_file['2026 February']['Germany'])
+    kb = load_knowledge_base()
