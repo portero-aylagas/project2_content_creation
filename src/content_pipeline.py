@@ -24,6 +24,40 @@ SECTION_TITLES = {
     "data_sources_used": "Data Sources Used",
 }
 
+MOCK_SECTION_CONTENT = {
+    "executive_summary": (
+        "MOCK: Believe saw steady momentum across DE, UK, and FR, with the "
+        "strongest opportunities coming from sharper local positioning, "
+        "platform responsiveness, and better use of Premium Solutions."
+    ),
+    "market_trends": (
+        "MOCK: Germany remains focused on digital restructuring, the UK "
+        "continues to reward independent discovery mechanics, and France "
+        "retains strong domestic-language demand with local editorial leverage."
+    ),
+    "platform_updates": (
+        "MOCK: Spotify, Apple Music, Deezer, YouTube Music, and TikTok all "
+        "require active monitoring because monetization and discovery dynamics "
+        "continue to shift month by month."
+    ),
+    "competitor_intelligence": (
+        "MOCK: AWAL, DistroKid, Virgin Music Group, and other distribution "
+        "players remain the core watchlist for Believe's competitive response."
+    ),
+    "independent_artist_economy": (
+        "MOCK: Independent artists continue to gain strategic relevance, but "
+        "revenue concentration and platform thresholds remain structural risks."
+    ),
+    "market_opportunities": (
+        "MOCK: The clearest opportunities are deeper Premium Solutions upsell, "
+        "local editorial leverage, and better market-by-market positioning."
+    ),
+    "data_sources_used": (
+        "MOCK: Internal knowledge-base material only. No live retrieval or "
+        "external source refresh was used in this mocked response."
+    ),
+}
+
 
 def generate_report(report_request: dict[str, object]) -> dict[str, object]:
     """
@@ -353,11 +387,96 @@ def generate_mock_report(report_request: dict[str, object]) -> dict[str, object]
     """
     UI compatibility wrapper.
     """
-    return generate_report(report_request)
+    report_request = _validate_report_request(report_request)
+    sections = {
+        section_name: _build_mock_section_text(section_name, report_request)
+        for section_name in report_request["sections"]
+    }
+    full_text = _assemble_report(
+        report_period=report_request["report_period"],
+        markets=report_request["markets"],
+        sections=sections,
+    )
+    return {
+        "report": {
+            "full_text": full_text,
+            "word_count": len(full_text.split()),
+            "sections": sections,
+        },
+        "metadata": {
+            "generated_on": date.today().isoformat(),
+            "sections_generated": len(sections),
+            "kb_files_used": [],
+            "mock": True,
+            "report_request": report_request,
+        },
+    }
 
 
 def iterate_mock_report(feedback_request: dict[str, object]) -> dict[str, object]:
     """
     UI compatibility wrapper.
     """
-    return iterate_report(feedback_request)
+    original_inputs = _validate_report_request(
+        dict(feedback_request.get("original_inputs", {}))
+    )
+    general_feedback = str(feedback_request.get("general_feedback", "")).strip()
+    section_feedback = feedback_request.get("section_feedback", {})
+
+    if not isinstance(section_feedback, dict):
+        section_feedback = {}
+
+    revised_response = generate_mock_report(original_inputs)
+    revised_sections = dict(revised_response["report"]["sections"])
+
+    if general_feedback:
+        for section_name in revised_sections:
+            revised_sections[section_name] = (
+                f"{revised_sections[section_name]}\n\n"
+                f"MOCK REVISION NOTE: Applied general feedback -> "
+                f"{general_feedback}"
+            )
+
+    for section_name, feedback_text in section_feedback.items():
+        if section_name in revised_sections and str(feedback_text).strip():
+            revised_sections[section_name] = (
+                f"{revised_sections[section_name]}\n\n"
+                f"MOCK REVISION NOTE: Applied section feedback -> "
+                f"{str(feedback_text).strip()}"
+            )
+
+    revised_response["report"]["sections"] = revised_sections
+    revised_response["report"]["full_text"] = _assemble_report(
+        report_period=original_inputs["report_period"],
+        markets=original_inputs["markets"],
+        sections=revised_sections,
+    )
+    revised_response["report"]["word_count"] = len(
+        revised_response["report"]["full_text"].split()
+    )
+    revised_response["metadata"].update(
+        {
+            "iteration_applied": True,
+            "feedback_text": str(feedback_request.get("feedback_text", "")),
+            "general_feedback": general_feedback,
+            "section_feedback": section_feedback,
+        }
+    )
+    return revised_response
+
+
+def _build_mock_section_text(
+    section_name: str,
+    report_request: dict[str, object],
+) -> str:
+    base_text = MOCK_SECTION_CONTENT.get(
+        section_name,
+        "MOCK: Section content placeholder.",
+    )
+
+    return (
+        f"{base_text}\n\n"
+        f"Mock settings: depth={report_request['report_depth']}, "
+        f"audience={report_request['audience']}, "
+        f"style={report_request.get('style', '')}."
+    )

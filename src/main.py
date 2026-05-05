@@ -38,7 +38,14 @@ SECTION_OPTIONS = [
     "independent_artist_economy",
     "market_opportunities"
 ]
-FEEDBACK_SCOPE_OPTIONS = ["full_report", "single_section"]
+
+STYLES = {
+    "thought_leadership": "insightful, expert-level, opinionated",
+    "storytelling": "emotional, narrative-driven, engaging",
+    "educational": "clear, structured, value-driven",
+    "contrarian": "challenging assumptions, bold perspective",
+    "minimalist": "concise, sharp, high-signal"
+}
 
 
 def build_report_request(
@@ -48,6 +55,7 @@ def build_report_request(
     sections: list[str],
     report_depth: str,
     audience: str,
+    style: str,
     selected_model: str,
     temperature: float,
 ) -> dict[str, object]:
@@ -65,11 +73,12 @@ def build_report_request(
         "sections": sections,
         "report_depth": report_depth,
         "audience": audience,
+        "style": style,
         "model": selected_model,
         "temperature": temperature,
     }
 
-    print("Generated report request:", report_request)
+    print("Generated report request:", report_request, flush=True)
 
     return report_request
 
@@ -81,6 +90,7 @@ def submit_report_request(
     sections: list[str],
     report_depth: str,
     audience: str,
+    style: str,
     selected_model: str,
     temperature: float,
 ) -> tuple[str, str, str, str]:
@@ -95,6 +105,7 @@ def submit_report_request(
         sections,
         report_depth,
         audience,
+        style,
         selected_model,
         temperature,
     )
@@ -118,9 +129,8 @@ def submit_report_request(
 def submit_feedback_request(
     generated_report_text: str,
     report_request_json: str,
-    feedback_scope: str,
-    feedback_section: str,
-    feedback_text: str,
+    general_feedback_text: str,
+    *section_feedback_values: str,
 ) -> tuple[str, str, str]:
     """
     Send the generated report, original inputs, and user feedback to the
@@ -133,7 +143,17 @@ def submit_feedback_request(
             "",
         )
 
-    if not feedback_text.strip():
+    section_feedback = {
+        section_name: feedback_text.strip()
+        for section_name, feedback_text in zip(
+            SECTION_OPTIONS, section_feedback_values
+        )
+        if feedback_text.strip()
+    }
+
+    general_feedback_text = general_feedback_text.strip()
+
+    if not general_feedback_text and not section_feedback:
         return (
             "WARNING: Enter feedback before applying the iterate step.",
             "",
@@ -141,13 +161,34 @@ def submit_feedback_request(
         )
 
     original_inputs = json.loads(report_request_json)
+    feedback_parts = []
+
+    if general_feedback_text:
+        feedback_parts.append(f"General feedback:\n{general_feedback_text}")
+
+    for section_name, feedback_text in section_feedback.items():
+        feedback_parts.append(
+            f"Section feedback for {section_name}:\n{feedback_text}"
+        )
+
+    feedback_scope = "full_report"
+    feedback_target_section = ""
+    if len(section_feedback) == 1 and not general_feedback_text:
+        feedback_scope = "single_section"
+        feedback_target_section = next(iter(section_feedback))
+
     feedback_request = {
         "original_report_text": generated_report_text,
         "original_inputs": original_inputs,
-        "feedback_text": feedback_text,
+        "feedback_text": "\n\n".join(feedback_parts),
         "scope": feedback_scope,
-        "target_section": feedback_section,
+        "target_section": feedback_target_section,
+        "general_feedback": general_feedback_text,
+        "section_feedback": section_feedback,
     }
+
+    print("Generated feedback request:", feedback_request, flush=True)
+
     revised_response = iterate_mock_report(feedback_request)
 
     warning_message = (
@@ -175,6 +216,21 @@ def deselect_all_sections() -> list[str]:
     Clear every report section in the checkbox group.
     """
     return []
+
+
+def get_style_preview(style_key: str) -> str:
+    """
+    Return the description for the selected style key.
+    """
+    style_description = STYLES.get(style_key, "")
+    return f"**Style Description:** {style_description}"
+
+
+def get_section_label(section_name: str) -> str:
+    """
+    Convert a section key into a readable label.
+    """
+    return section_name.replace("_", " ").title()
 
 
 def main():
@@ -282,6 +338,17 @@ def main():
                     interactive=True,
                 )
 
+            style_selector = gr.Radio(
+                choices=list(STYLES.keys()),
+                value="thought_leadership",
+                label="Report Style",
+                info="Choose one writing style for the report output.",
+                interactive=True,
+            )
+            style_preview = gr.Markdown(
+                get_style_preview("thought_leadership")
+            )
+
             generate_button = gr.Button("Generate Report")
 
         warning_output = gr.Textbox(
@@ -308,33 +375,28 @@ def main():
         with gr.Group():
             gr.Markdown("## Iterate / Feedback")
             gr.Markdown(
-                "This is also a mock. The iterate step receives the generated "
-                "text, the original report inputs, and the feedback text."
+                "This is also a mock. Add general feedback for the whole report "
+                "and optional section-specific feedback where needed."
             )
 
-            with gr.Row():
-                feedback_scope_dropdown = gr.Dropdown(
-                    choices=FEEDBACK_SCOPE_OPTIONS,
-                    value="full_report",
-                    label="Feedback Scope",
-                    info="Choose whether feedback applies to the full report or a single section.",
-                    interactive=True,
-                )
-
-                feedback_section_dropdown = gr.Dropdown(
-                    choices=SECTION_OPTIONS,
-                    value="executive_summary",
-                    label="Feedback Section",
-                    info="Used when the feedback scope is a single section.",
-                    interactive=True,
-                )
-
-            feedback_textbox = gr.Textbox(
-                label="Feedback",
+            general_feedback_textbox = gr.Textbox(
+                label="General Feedback",
                 lines=4,
-                placeholder="Example: Make the market trends section more specific and shorten the executive summary.",
+                placeholder="Example: Make every section a bit longer and more data-driven.",
                 interactive=True,
             )
+
+            section_feedback_boxes = []
+            for section_name in SECTION_OPTIONS:
+                feedback_box = gr.Textbox(
+                    label=f"{get_section_label(section_name)} Feedback",
+                    lines=3,
+                    placeholder=(
+                        f"Optional feedback for {get_section_label(section_name)}."
+                    ),
+                    interactive=True,
+                )
+                section_feedback_boxes.append(feedback_box)
 
             apply_feedback_button = gr.Button("Apply Feedback")
 
@@ -363,6 +425,7 @@ def main():
                 section_selector,
                 report_depth_dropdown,
                 audience_dropdown,
+                style_selector,
                 model_dropdown,
                 temperature_slider,
             ],
@@ -374,14 +437,19 @@ def main():
             ],
         )
 
+        style_selector.change(
+            fn=get_style_preview,
+            inputs=style_selector,
+            outputs=style_preview,
+        )
+
         apply_feedback_button.click(
             fn=submit_feedback_request,
             inputs=[
                 report_output,
                 report_request_output,
-                feedback_scope_dropdown,
-                feedback_section_dropdown,
-                feedback_textbox,
+                general_feedback_textbox,
+                *section_feedback_boxes,
             ],
             outputs=[
                 feedback_warning_output,
