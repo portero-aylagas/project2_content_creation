@@ -65,6 +65,16 @@ DOCUMENT_FRAME_CSS = """
 .report-document li {
   line-height: 1.7;
 }
+
+.orange-btn {
+    background-color: orange !important;
+    color: white !important;
+    border: none !important;
+}
+
+.orange-btn:hover {
+    background-color: darkorange !important;
+}
 """
 
 
@@ -317,25 +327,25 @@ def main():
                     label="Month",
                     info="Initialized to the current month.",
                     interactive=True,
-                )
-
-            market_selector = gr.CheckboxGroup(
-                choices=MARKET_OPTIONS,
-                value=MARKET_OPTIONS,
-                label="Markets",
-                info="Select one or more markets to include in the report.",
-                interactive=True,
-            )
-
-            with gr.Row():
-                select_all_button = gr.Button("Select All", size="sm")
-                deselect_all_button = gr.Button("Deselect All", size="sm")
+                )     
 
             section_selector = gr.CheckboxGroup(
                 choices=SECTION_OPTIONS,
                 value=SECTION_OPTIONS,
                 label="Report Sections",
                 info="Select one, several, or all sections.",
+                interactive=True,
+            )
+
+            with gr.Row():
+                select_all_button = gr.Button("Select All Sections", size="sm")
+                deselect_all_button = gr.Button("Deselect All", size="sm")
+
+            market_selector = gr.CheckboxGroup(
+                choices=MARKET_OPTIONS,
+                value=MARKET_OPTIONS,
+                label="Markets",
+                info="Select one or more countries to include in reports about market trends.",
                 interactive=True,
             )
 
@@ -367,26 +377,26 @@ def main():
                 get_style_preview("thought_leadership")
             )
 
-            generate_button = gr.Button("Generate Report")
+            generate_button = gr.Button("Generate Report", elem_classes="orange-btn")
 
         warning_output = gr.Textbox(
             label="Pipeline Status",
             interactive=False,
         )
-        report_request_output = gr.Code(
-            label="Original Report Request JSON",
-            language="json",
-            interactive=False,
-        )
+        with gr.Accordion("Original Report Request JSON (click to expand/collapse)", open=False):
+            report_request_output = gr.Code(
+                language="json",
+                interactive=False,
+            )
         report_output = gr.Markdown(
             label="Generated Report",
             elem_classes=["report-document"],
         )
-        json_output = gr.Code(
-            label="Content Pipeline JSON",
-            language="json",
-            interactive=False,
-        )
+        with gr.Accordion("Content Pipeline JSON (click to expand/collapse)", open=False):
+            json_output = gr.Code(
+                language="json",
+                interactive=False,
+            )
 
         with gr.Group():
             gr.Markdown("## Iterate / Feedback")
@@ -414,7 +424,7 @@ def main():
                 )
                 section_feedback_boxes.append(feedback_box)
 
-            apply_feedback_button = gr.Button("Apply Feedback")
+            apply_feedback_button = gr.Button("Apply Feedback", elem_classes="orange-btn")
 
         feedback_warning_output = gr.Textbox(
             label="Iterate Status",
@@ -424,11 +434,11 @@ def main():
             label="Revised Report",
             elem_classes=["report-document"],
         )
-        revised_json_output = gr.Code(
-            label="Iterate JSON",
-            language="json",
-            interactive=False,
-        )
+        with gr.Accordion("Iterate JSON (click to expand/collapse)", open=False):
+            revised_json_output = gr.Code(
+                language="json",
+                interactive=False,
+            )
 
         generate_button.click(
             fn=submit_report_request,
