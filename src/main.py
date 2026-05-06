@@ -4,6 +4,8 @@ import json
 from datetime import date
 
 import gradio as gr
+import tempfile
+import os
 
 from content_pipeline import generate_report, iterate_report
 from llm_integration import get_summary_candidate_models
@@ -108,8 +110,6 @@ def build_report_request(
         "model": selected_model,
         "temperature": temperature,
     }
-
-    print("Generated report request:", report_request, flush=True)
 
     return report_request
 
@@ -228,8 +228,6 @@ def submit_feedback_request(
         "temperature": temperature,
     }
 
-    print("Generated feedback request:", feedback_request, flush=True)
-
     try:
         revised_response = iterate_report(feedback_request)
     except Exception as exc:
@@ -249,6 +247,19 @@ def submit_feedback_request(
         revised_response["report"]["full_text"],
         json.dumps(revised_response, indent=2),
     )
+
+
+def prepare_report_download(report_text: str) -> str:
+    """Prepare the report text for download as a Markdown file."""
+    if not report_text.strip():
+        raise ValueError("No report content available to download.")
+    
+    # Create a temporary file with the report content
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
+        temp_file.write(report_text)
+        temp_file_path = temp_file.name
+    
+    return temp_file_path
 
 
 def select_all_sections() -> list[str]:
@@ -280,6 +291,19 @@ def get_section_label(section_name: str) -> str:
     return section_name.replace("_", " ").title()
 
 
+def prepare_report_download(report_text: str) -> str:
+    """Prepare the report text for download as a Markdown file."""
+    if not report_text.strip():
+        raise ValueError("No report content available to download.")
+    
+    # Create a temporary file with the report content
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
+        temp_file.write(report_text)
+        temp_file_path = temp_file.name
+    
+    return temp_file_path
+
+
 def main():
     """Launch the Gradio app for generation + feedback workflows."""
     models = get_summary_candidate_models()
@@ -290,9 +314,12 @@ def main():
 
     with gr.Blocks(css=DOCUMENT_FRAME_CSS) as demo:
         gr.Markdown("# Believe Market Intelligence Report Generator")
-        gr.Markdown(
-            "Choose the report month, markets, sections, and LLM settings."
-        )
+        gr.Markdown("This application generates customized market intelligence reports on the independent music industry using a local knowledge base.\n\n" \
+        "The UI allows users to configure report generation by selecting a time period, target markets, the sections in the report, report length, target audience, and writing style.\n\n" \
+        "Users can also choose the OpenAI model, adjust temperature for creativity control, download generated reports, and iteratively refine reports through general and section-specific feedback.")
+        # gr.Markdown(
+        #     "# Choose the report month, markets, sections, and LLM settings."
+        # )
 
         with gr.Group():
             gr.Markdown("## LLM Configuration")
@@ -398,6 +425,11 @@ def main():
             label="Generated Report",
             elem_classes=["report-document"],
         )
+        
+        # Download components for the report
+        download_file = gr.File(label="Download Report", interactive=False, scale=0)
+        download_button = gr.Button("Download Report as .md", elem_classes="orange-btn")
+        
         with gr.Accordion("Content Pipeline JSON (click to expand/collapse)", open=False):
             json_output = gr.Code(
                 language="json",
@@ -504,6 +536,12 @@ def main():
             fn=deselect_all_sections,
             inputs=None,
             outputs=section_selector,
+        )
+
+        download_button.click(
+            fn=prepare_report_download,
+            inputs=[report_output],
+            outputs=[download_file],
         )
 
     demo.launch()
