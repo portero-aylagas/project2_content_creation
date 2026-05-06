@@ -22,6 +22,13 @@ STYLES = {
     "minimalist": "concise, sharp, high-signal",
 }
 
+
+def _log_step(title: str) -> None:
+    """Print a compact step-style log header."""
+    print("\n" + "-" * 50, flush=True)
+    print(title, flush=True)
+    print("-" * 50, flush=True)
+
 # -----------------------------
 # TEMPLATE LOADER
 # -----------------------------
@@ -202,11 +209,13 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "length_instruction": length_instruction,
         }
 
+        _log_step("🧠 STEP 2A — BUILD GENERATION PROMPT")
         print(
-            "[prompt_templates] build_section_prompt: "
-            f"prompt_type={prompt_key}, style={metadata.get('style', 'thought_leadership')}, "
-            f"audience={audience or 'unspecified'}, depth={report_depth}, "
-            f"context_chars={len(combined_context)}",
+            f"Prompt type: {prompt_key} | "
+            f"style: {metadata.get('style', 'thought_leadership')} | "
+            f"audience: {audience or 'unspecified'} | "
+            f"depth: {report_depth} | "
+            f"context size: {len(combined_context)} chars",
             flush=True,
         )
 
@@ -270,11 +279,13 @@ def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "length_instruction": length_instruction,
         }
 
+        _log_step("🧠 STEP 4A — BUILD FEEDBACK PROMPT")
         print(
-            "[prompt_templates] build_feedback_prompt: "
-            f"scope={section_scope}, style={style}, depth={report_depth}, "
-            f"general_feedback_chars={len(general_feedback)}, "
-            f"section_feedback_items="
+            f"Scope: {section_scope} | "
+            f"style: {style} | "
+            f"depth: {report_depth} | "
+            f"general feedback size: {len(general_feedback)} chars | "
+            "section feedback items: "
             f"{len(metadata.get('section_feedback', {})) if isinstance(metadata.get('section_feedback', {}), dict) else 0}",
             flush=True,
         )

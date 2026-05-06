@@ -32,6 +32,13 @@ SECTION_NAME_MAP = {
 PREVIEW_MAX_CHARS = 220
 
 
+def log_section(title: str) -> None:
+    """Print a compact section header for pipeline progress logs."""
+    print("\n" + "=" * 58, flush=True)
+    print(title, flush=True)
+    print("=" * 58, flush=True)
+
+
 def _preview_text(text: str, max_chars: int = PREVIEW_MAX_CHARS) -> str:
     """Return a single-line preview snippet for logs."""
     cleaned = text.replace("\n", " ").strip()
@@ -99,6 +106,7 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
 
     kb_data = load_knowledge_base()
     kb_period = f"{normalized_request['year']} {normalized_request['month']}"
+    log_section("📚 STEP 1 — BUILD REPORT CONTEXT")
     combined_context = get_section_context(
         kb_data,
         kb_sections,
@@ -124,8 +132,9 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(prompt_payload["error"])
 
     prompt_payload["temperature"] = normalized_request["temperature"]
+    log_section("🤖 STEP 2 — GENERATE REPORT WITH LLM")
     print(
-        "[content_pipeline] generate_report: sending prompt to LLM "
+        "Sending prompt to LLM "
         f"(model={normalized_request['model'] or 'default'}, "
         f"period={kb_period}, sections={len(kb_sections)}, markets={len(kb_markets)}).",
         flush=True,
@@ -140,11 +149,10 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
 
     generated_text = str(llm_response.get("generated_text", ""))
-    print(
-        "[content_pipeline] generate_report: generated text preview -> "
-        f"{_preview_text(generated_text)}",
-        flush=True,
-    )
+    log_section("✅ STEP 3 — REPORT GENERATED")
+    print(f"Generated text ({len(generated_text)} characters).", flush=True)
+    print("\nPreview:", flush=True)
+    print(_preview_text(generated_text), flush=True)
 
     return {
         "report": {
@@ -225,8 +233,9 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(feedback_prompt_payload["error"])
 
     feedback_prompt_payload["temperature"] = temperature
+    log_section("🛠️ STEP 4 — APPLY FEEDBACK WITH LLM")
     print(
-        "[content_pipeline] iterate_report: sending feedback prompt to LLM "
+        "Sending feedback prompt to LLM "
         f"(model={model or 'default'}, sections={len(original_inputs.get('sections', []))}).",
         flush=True,
     )
@@ -240,11 +249,10 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
 
     revised_text = str(llm_response.get("generated_text", ""))
-    print(
-        "[content_pipeline] iterate_report: revised text preview -> "
-        f"{_preview_text(revised_text)}",
-        flush=True,
-    )
+    log_section("✅ STEP 5 — REVISED REPORT GENERATED")
+    print(f"Revised text ({len(revised_text)} characters).", flush=True)
+    print("\nPreview:", flush=True)
+    print(_preview_text(revised_text), flush=True)
 
     return {
         "report": {
