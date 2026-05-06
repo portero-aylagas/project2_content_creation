@@ -6,7 +6,11 @@ parses heading hierarchies into nested dictionaries.
 
 from pathlib import Path
 
-def load_knowledge_base():
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_KB_PATH = PROJECT_ROOT / "knowledge_base"
+
+
+def load_knowledge_base(base_path: Path | None = None):
     """Load all knowledge-base markdown files into a nested dictionary.
 
     Returns:
@@ -14,11 +18,14 @@ def load_knowledge_base():
         stem, with each value containing parsed markdown content from
         `read_file_base`.
     """
-    base_path = Path("knowledge_base")
+    kb_path = base_path or DEFAULT_KB_PATH
+
+    if not kb_path.exists():
+        raise FileNotFoundError(f"Knowledge base path not found: {kb_path}")
 
     knowledge = {}
 
-    for folder in base_path.iterdir():
+    for folder in kb_path.iterdir():
         knowledge[folder.name] = {}
         for file in folder.iterdir():
             knowledge[folder.name][file.name[:-3]] = read_file_base(file)
