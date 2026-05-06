@@ -246,7 +246,7 @@ def generate_text(
                 {"role": "system", "content": "You generate high-quality, non-generic business content."},
                 {"role": "user", "content": prompt_obj["prompt"]}
             ],
-            max_tokens=prompt_obj.get("max_tokens", 600),
+            max_tokens=prompt_obj.get("max_tokens", 16000),
             temperature=final_temperature
         )
 

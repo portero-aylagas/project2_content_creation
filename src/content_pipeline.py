@@ -124,6 +124,9 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
 
     generated_text = str(llm_response.get("generated_text", ""))
+    print("######################## GENERATED TEXT ########################")
+    print(generated_text)
+    print("###################### END GENERATED TEXT #########################")
 
     return {
         "report": {

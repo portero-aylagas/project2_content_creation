@@ -180,6 +180,9 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         `combined_context`, `report_depth`, `audience`, `style`
     """
     try:
+        print("######################## METADATA ########################")
+        print(metadata)
+        print("######################## END METADATA ########################")
         validate_inputs(metadata, required_fields=["combined_context"])
 
         prompt_key = str(metadata.get("prompt_type", "market_analysis"))
@@ -207,8 +210,6 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "section": "combined_report",
             "prompt": prompt,
-            "max_tokens": int(metadata.get("max_tokens", 600)),
-            "temperature": float(metadata.get("temperature", 0.2)),
             "prompt_type": prompt_key,
             "success": True,
         }
@@ -269,8 +270,6 @@ def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "section": str(metadata["section"]),
             "prompt": prompt,
-            "max_tokens": int(metadata.get("max_tokens", 600)),
-            "temperature": float(metadata.get("temperature", 0.2)),
             "prompt_type": "feedback_prompt",
             "success": True,
         }
