@@ -1,83 +1,57 @@
 # Believe Market Intelligence Report Generator
 
-Gradio application that generates a Markdown market-intelligence report from local knowledge-base markdown files, then supports iterative revision through user feedback.
+Gradio app that generates a Markdown market-intelligence report from local knowledge-base files, then supports iterative revision through user feedback.
 
-## What It Does
+## Quick Start (2-3 minutes)
 
-- Ingests markdown files from `knowledge_base/primary` and `knowledge_base/secondary`.
-- Builds one combined context string based on selected sections, markets, and period.
-- Generates a report prompt from `templates/prompt_generation.json`.
+1. Install dependencies.
+2. Set `OPENAI_API_KEY` (env var or `.env` file).
+3. Run `python src/main.py`.
+4. Generate one report and apply one feedback iteration.
+5. (Optional) Run tests with `python -m pytest -q`.
+
+## What the App Does
+
+- Loads markdown knowledge-base files from `knowledge_base/primary` and `knowledge_base/secondary`.
+- Builds one combined context for selected sections, markets, and period.
+- Builds a generation prompt from `templates/prompt_generation.json`.
 - Calls OpenAI to generate report content.
-- Applies feedback by rebuilding a feedback prompt with:
-  - the original generation prompt,
-  - the previous generated content,
+- Rebuilds a feedback prompt using:
+  - original generation prompt,
+  - previous generated report,
   - general feedback,
-  - section-specific feedback.
+  - section feedback.
 
-## Current Status
+## Current Behavior (Important)
 
-- Generation flow is connected end-to-end.
-- Feedback iteration flow is connected end-to-end.
-- Report and revised report are rendered as Markdown in document-style panels.
-- Available months/years are currently static in UI (`January`-`April`, `2026`).
+- Report generation and feedback iteration are both working end-to-end.
+- UI period options are static today:
+  - months: `January`-`April`
+  - year: `2026`
+- The default month in the UI is currently hardcoded to `April`.
+- The app prints compact step logs in the terminal (context build, prompt build, LLM call, preview).
 
 ## Architecture
 
 Pipeline flow:
 
-`main.py` -> `content_pipeline.py` -> `document_processor.py` -> `knowledge_base.py` -> `prompt_templates.py` -> `llm_integration.py`
+`src/main.py -> src/content_pipeline.py -> src/document_processor.py -> src/knowledge_base.py -> src/prompt_templates.py -> src/llm_integration.py`
 
 File responsibilities:
 
-- `src/main.py`: Gradio UI and request/feedback payload construction.
-- `src/content_pipeline.py`: Orchestration for initial generation and feedback iteration.
-- `src/document_processor.py`: Reads and parses KB markdown into nested dictionaries.
-- `src/knowledge_base.py`: Selects and concatenates context for requested sections.
-- `src/prompt_templates.py`: Loads JSON templates and injects prompt variables.
-- `src/llm_integration.py`: OpenAI model discovery, generation, and usage/cost accounting.
-- `templates/prompt_generation.json`: Main generation and feedback prompt templates.
-
-## Knowledge Base Layout
-
-Expected structure:
-
-- `knowledge_base/primary`
-  - `believe_company_profile.md`
-  - `believe_competitive_positioning.md`
-  - `believe_strategic_priorities.md`
-  - `believe_report_template.md`
-- `knowledge_base/secondary`
-  - `market_trends_DE_UK_FR.md`
-  - `platform_policy_updates.md`
-  - `streaming_platforms_landscape.md`
-  - `competitor_intelligence.md`
-  - `independent_music_industry.md`
-
-## Section and Market Mapping
-
-UI section keys -> internal KB keys:
-
-- `market_trends` -> `market_trends`
-- `platform_updates` -> `platform_updates`
-- `competitor_intelligence` -> `competition`
-- `independent_artist_economy` -> `artist_economy`
-- `market_opportunities` -> `opportunities`
-
-UI market codes -> internal KB labels:
-
-- `DE` -> `Germany`
-- `UK` -> `UK`
-- `FR` -> `France`
-
-Date key passed to KB:
-
-- Format: `YYYY Month` (example: `2026 March`)
+- `src/main.py`: Gradio UI, request construction, feedback construction, download hooks.
+- `src/content_pipeline.py`: orchestration for generation + feedback pipeline.
+- `src/document_processor.py`: markdown KB loading/parsing.
+- `src/knowledge_base.py`: context selection/assembly by section, date, market.
+- `src/prompt_templates.py`: prompt template loading/formatting.
+- `src/llm_integration.py`: OpenAI model discovery + generation + token/cost tracking.
+- `templates/prompt_generation.json`: prompt templates (`market_analysis`, `feedback_prompt`).
 
 ## Setup
 
 Prerequisites:
 
-- Python 3.10+ recommended
+- Python 3.10+
 - OpenAI API key
 
 Install:
@@ -86,10 +60,22 @@ Install:
 pip install -r requirements.txt
 ```
 
-Environment:
+Or with repo-local Conda Python:
+
+```bash
+./.conda/bin/python -m pip install -r requirements.txt
+```
+
+Set API key (shell):
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
+```
+
+Or create `.env` in repo root:
+
+```env
+OPENAI_API_KEY=your_api_key_here
 ```
 
 Run:
@@ -98,93 +84,93 @@ Run:
 python src/main.py
 ```
 
+Or:
+
+```bash
+./.conda/bin/python src/main.py
+```
+
 ## Usage
 
 Generate report:
 
-- Select period, markets, sections, report depth, audience, style, model, and temperature.
-- Click `Generate Report`.
-- Review:
-  - `Pipeline Status`
-  - `Generated Report`
-  - `Content Pipeline JSON`
+1. Pick period, markets, sections, depth, audience, style, model, temperature.
+2. Click `Generate Report`.
+3. Review:
+   - `Pipeline Status`
+   - `Generated Report`
+   - `Original Report Request JSON`
+   - `Content Pipeline JSON`
+4. Optional: click `Download Report as .md`.
 
 Apply feedback:
 
-- Add `General Feedback` and optional per-section feedback.
-- Optionally change model/temperature/report settings before feedback pass.
-- Click `Apply Feedback`.
-- Review:
-  - `Iterate Status`
-  - `Revised Report`
-  - `Iterate JSON`
+1. Add `General Feedback` and optional section-specific feedback.
+2. Click `Apply Feedback`.
+3. Review:
+   - `Iterate Status`
+   - `Revised Report`
+   - `Iterate JSON`
+4. Optional: click `Download Revised Report as .md`.
 
-## Prompt Inputs
+## Section and Market Mapping
 
-Main prompt (`market_analysis`) currently injects:
+Sections:
 
-- `combined_context`
-- `report_depth`
-- `audience`
-- `style_desc`
-- `length_instruction`
+- `market_trends` -> `market_trends`
+- `platform_updates` -> `platform_updates`
+- `competitor_intelligence` -> `competition`
+- `independent_artist_economy` -> `artist_economy`
+- `market_opportunities` -> `opportunities`
 
-Feedback prompt (`feedback_prompt`) currently injects:
+Markets:
 
-- `original_prompt`
-- `generated_content`
-- `general_feedback`
-- `section_feedback_block`
-- `section_scope`
-- `report_depth`
-- `audience`
-- `style_desc`
-- `length_instruction`
+- `DE` -> `Germany`
+- `UK` -> `UK`
+- `FR` -> `France`
 
-## Output Payloads
+Date key used in KB lookup:
 
-`generate_report(...)` returns:
-
-- `report.full_text`
-- `report.word_count`
-- `prompt`
-- `combined_context`
-- `llm_response`
-- `metadata` (sections, markets, period, model, temperature, token/cost data)
-
-`iterate_report(...)` returns:
-
-- `report.full_text` (revised)
-- `feedback_prompt`
-- `llm_response`
-- `metadata` (feedback, model, temperature, token/cost data)
-
-## Troubleshooting
-
-- `OPENAI_API_KEY is not set`:
-  - Export env var before running.
-- Key errors for date/market/section:
-  - Verify UI selection exists in KB content.
-  - Verify mapping keys in `content_pipeline.py`.
-- Feedback seems ignored:
-  - Check `Iterate JSON` to confirm feedback payload fields are populated.
-  - Use explicit replacement wording in feedback (example: `Replace Spotify with spotifoo`).
+- `YYYY Month` (example: `2026 March`)
 
 ## Testing and Validation
 
-Current lightweight validation:
+Run tests:
 
-- Source compile check:
-  - `python3 -m py_compile src/*.py`
-- Prompt JSON validity:
-  - `python3 -c "import json; json.load(open('templates/prompt_generation.json'))"`
+```bash
+python -m pytest -q
+```
 
-## Roadmap
+Or:
 
-- Derive available report periods dynamically from KB metadata.
-- Add deterministic post-processing for explicit replacement feedback rules.
-- Add automated tests for:
-  - markdown structure and date presence/format,
-  - pipeline input validation,
-  - integration happy path.
-- Optional export automation to Notion.
+```bash
+./.conda/bin/python -m pytest -q
+```
+
+Quick sanity checks:
+
+```bash
+python -m py_compile src/*.py
+python -c "import json; json.load(open('templates/prompt_generation.json', encoding='utf-8'))"
+```
+
+## Troubleshooting
+
+- `OPENAI_API_KEY is not set`
+  - Set env var or `.env`, then restart.
+- Date/market/section key issues
+  - Confirm selected values exist in KB and mappings in `src/content_pipeline.py`.
+- Feedback appears ignored
+  - Check `Iterate JSON` and use explicit instructions (example: `Replace X with Y`).
+
+## Known Limitations
+
+- Period options are static in UI (`January`-`April`, `2026`).
+- Knowledge-base parsing assumes consistent markdown heading hierarchy.
+- OpenAI-only provider integration.
+
+## Minimal Roadmap
+
+- Derive months/years dynamically from KB metadata.
+- Add deterministic post-processing for explicit replacement feedback.
+- Expand integration tests for pipeline + mocked LLM.
