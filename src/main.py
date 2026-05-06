@@ -5,7 +5,6 @@ from datetime import date
 
 import gradio as gr
 import tempfile
-import os
 
 from content_pipeline import generate_report, iterate_report
 from llm_integration import get_summary_candidate_models
@@ -142,7 +141,7 @@ def submit_report_request(
         pipeline_response = generate_report(report_request)
     except Exception as exc:
         return (
-            f"Report generation failed: {exc}",
+            f"Report generation failed ({type(exc).__name__}): {exc}",
             json.dumps(report_request, indent=2),
             "",
             "",
@@ -198,8 +197,16 @@ def submit_feedback_request(
             "",
         )
 
-    original_inputs = json.loads(report_request_json)
-    pipeline_response = json.loads(pipeline_response_json)
+    try:
+        original_inputs = json.loads(report_request_json)
+        pipeline_response = json.loads(pipeline_response_json)
+    except (json.JSONDecodeError, TypeError) as exc:
+        return (
+            f"Feedback iteration failed ({type(exc).__name__}): "
+            f"invalid feedback JSON payload: {exc}",
+            "",
+            "",
+        )
     # Reuse the exact prompt from the first generation pass for revision context.
     original_prompt = str(
         pipeline_response.get("prompt", {}).get("prompt", "")
@@ -232,7 +239,7 @@ def submit_feedback_request(
         revised_response = iterate_report(feedback_request)
     except Exception as exc:
         return (
-            f"Feedback iteration failed: {exc}",
+            f"Feedback iteration failed ({type(exc).__name__}): {exc}",
             "",
             "",
         )
@@ -289,19 +296,6 @@ def get_section_label(section_name: str) -> str:
     Convert a section key into a readable label.
     """
     return section_name.replace("_", " ").title()
-
-
-def prepare_report_download(report_text: str) -> str:
-    """Prepare the report text for download as a Markdown file."""
-    if not report_text.strip():
-        raise ValueError("No report content available to download.")
-    
-    # Create a temporary file with the report content
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
-        temp_file.write(report_text)
-        temp_file_path = temp_file.name
-    
-    return temp_file_path
 
 
 def main():
