@@ -22,6 +22,13 @@ STYLES = {
     "minimalist": "concise, sharp, high-signal",
 }
 
+
+def _log_step(title: str) -> None:
+    """Print a compact step-style log header."""
+    print("\n" + "-" * 50, flush=True)
+    print(title, flush=True)
+    print("-" * 50, flush=True)
+
 # -----------------------------
 # TEMPLATE LOADER
 # -----------------------------
@@ -180,9 +187,6 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         `combined_context`, `report_depth`, `audience`, `style`
     """
     try:
-        print("######################## METADATA ########################")
-        print(metadata)
-        print("######################## END METADATA ########################")
         validate_inputs(metadata, required_fields=["combined_context"])
 
         prompt_key = str(metadata.get("prompt_type", "market_analysis"))
@@ -204,6 +208,16 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "audience": audience,
             "length_instruction": length_instruction,
         }
+
+        _log_step("🧠 STEP 2A — BUILD GENERATION PROMPT")
+        print(
+            f"Prompt type: {prompt_key} | "
+            f"style: {metadata.get('style', 'thought_leadership')} | "
+            f"audience: {audience or 'unspecified'} | "
+            f"depth: {report_depth} | "
+            f"context size: {len(combined_context)} chars",
+            flush=True,
+        )
 
         prompt = _format_prompt(template, prompt_values).strip()
 
@@ -264,6 +278,17 @@ def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "audience": audience,
             "length_instruction": length_instruction,
         }
+
+        _log_step("🧠 STEP 4A — BUILD FEEDBACK PROMPT")
+        print(
+            f"Scope: {section_scope} | "
+            f"style: {style} | "
+            f"depth: {report_depth} | "
+            f"general feedback size: {len(general_feedback)} chars | "
+            "section feedback items: "
+            f"{len(metadata.get('section_feedback', {})) if isinstance(metadata.get('section_feedback', {}), dict) else 0}",
+            flush=True,
+        )
 
         prompt = _format_prompt(template, prompt_values).strip()
 
