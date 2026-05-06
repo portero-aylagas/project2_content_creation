@@ -61,19 +61,25 @@ DOCUMENT_FRAME_CSS = """
   overflow-y: auto;
 }
 
+/* Disable inner scrolling from Gradio */
+.report-document .prose {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
 .report-document p,
 .report-document li {
   line-height: 1.7;
 }
 
 .orange-btn {
-    background-color: orange !important;
+    background-color: darkorange !important;
     color: white !important;
     border: none !important;
 }
 
 .orange-btn:hover {
-    background-color: darkorange !important;
+    background-color: orange !important;
 }
 """
 
