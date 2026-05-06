@@ -5,11 +5,17 @@ OpenAI client, and lightweight token/cost accounting.
 """
 
 import os
-from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import (
+    APIConnectionError,
+    APIError,
+    APITimeoutError,
+    AuthenticationError,
+    OpenAI,
+    RateLimitError,
+)
 
 # -----------------------------
 # ENV SETUP
@@ -62,7 +68,7 @@ def get_openai_models() -> List[str]:
     try:
         models = _get_client().models.list()
         return sorted(model.id for model in models.data)
-    except Exception:
+    except (RuntimeError, APIError):
         return list(FALLBACK_MODEL_IDS)
 
 
@@ -170,7 +176,7 @@ MODEL_PRICING = {
 # COST CALCULATION
 # -----------------------------
 
-def calculate_cost_from_usage(usage, model: str) -> float:
+def calculate_cost_from_usage(usage, model: str) -> Optional[float]:
     """Estimate request cost (USD) from token usage and pricing table."""
     if not usage:
         return 0.0
@@ -186,7 +192,7 @@ def calculate_cost_from_usage(usage, model: str) -> float:
         pricing = MODEL_PRICING.get(category)
 
     if not pricing:
-        raise ValueError(f"No pricing found for model: {model}")
+        return None
 
     input_cost = (input_tokens / 1000) * pricing["input"]
     output_cost = (output_tokens / 1000) * pricing["output"]
@@ -250,7 +256,21 @@ def generate_text(
             temperature=final_temperature
         )
 
-        content = response.choices[0].message.content.strip()
+        if not response.choices:
+            return {
+                "section": prompt_obj.get("section"),
+                "success": False,
+                "error": "LLM returned no choices."
+            }
+
+        message = response.choices[0].message
+        content = (message.content or "").strip() if message else ""
+        if not content:
+            return {
+                "section": prompt_obj.get("section"),
+                "success": False,
+                "error": "LLM returned empty content."
+            }
 
         usage = response.usage
         tokens_used = usage.total_tokens if usage else 0
@@ -259,7 +279,8 @@ def generate_text(
         # Global tracking
         USAGE_STATS["total_tokens"] += tokens_used
         USAGE_STATS["total_requests"] += 1
-        USAGE_STATS["total_cost_usd"] += cost
+        if cost is not None:
+            USAGE_STATS["total_cost_usd"] += cost
 
         return {
             "section": prompt_obj.get("section"),
@@ -271,11 +292,35 @@ def generate_text(
             "success": True
         }
 
+    except AuthenticationError as e:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": f"Authentication error: {e}"
+        }
+    except RateLimitError as e:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": f"Rate limit error: {e}"
+        }
+    except (APITimeoutError, APIConnectionError) as e:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": f"Connection error: {e}"
+        }
+    except APIError as e:
+        return {
+            "section": prompt_obj.get("section"),
+            "success": False,
+            "error": f"OpenAI API error: {e}"
+        }
     except Exception as e:
         return {
             "section": prompt_obj.get("section"),
             "success": False,
-            "error": str(e)
+            "error": f"Unexpected generation error: {e}"
         }
 
 
