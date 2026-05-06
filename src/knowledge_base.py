@@ -4,9 +4,33 @@ This module builds report-ready context strings from parsed KB data returned by
 `document_processor.load_knowledge_base`.
 """
 
+SUPPORTED_SECTIONS = {
+    "market_trends",
+    "platform_updates",
+    "competition",
+    "artist_economy",
+    "opportunities",
+}
+
+
+def _get_required(mapping, key, context):
+    """Return `mapping[key]` with a clearer error message if missing."""
+    if not isinstance(mapping, dict):
+        raise ValueError(f"{context} must be a dictionary.")
+
+    if key not in mapping:
+        available = ", ".join(sorted(str(k) for k in mapping.keys()))
+        raise ValueError(
+            f"Missing key '{key}' in {context}. Available keys: {available}"
+        )
+
+    return mapping[key]
+
+
 def iter_dict(sel_sect):
     """Render a dictionary section as a simple key-value text block."""
     return "".join(f"{k} -- {v}\n\n" for k, v in sel_sect.items())
+
 
 def filter_sections(kb, section, date, country=None):
     """Build context text for one internal section name.
@@ -23,50 +47,114 @@ def filter_sections(kb, section, date, country=None):
     Returns:
         str: Concatenated context for the requested section.
     """
-    
+    if section not in SUPPORTED_SECTIONS:
+        supported = ", ".join(sorted(SUPPORTED_SECTIONS))
+        raise ValueError(
+            f"Unsupported section '{section}'. Supported sections: {supported}"
+        )
+
+    secondary = _get_required(kb, "secondary", "knowledge base root")
+    primary = _get_required(kb, "primary", "knowledge base root")
     content = ""
 
     if section == "market_trends":
         # Market trends are stored by country under one date bucket.
-        selected_section = kb["secondary"]["market_trends_DE_UK_FR"][date][country]
+        market_trends = _get_required(
+            secondary, "market_trends_DE_UK_FR", "knowledge_base.secondary"
+        )
+        period_bucket = _get_required(
+            market_trends, date, "knowledge_base.secondary.market_trends_DE_UK_FR"
+        )
+        if not country:
+            raise ValueError(
+                "Country is required for section 'market_trends'."
+            )
+        selected_section = _get_required(
+            period_bucket,
+            country,
+            (
+                "knowledge_base.secondary.market_trends_DE_UK_FR"
+                f"['{date}']"
+            ),
+        )
         content += f"# Market trends for {country} in {date}:\n\n"
         content += selected_section
-        
+
     elif section == "platform_updates":
         content += f"# Platform policy updates for {date}:\n\n"
-        selected_section = kb["secondary"]["platform_policy_updates"][date]
+        platform_updates = _get_required(
+            secondary, "platform_policy_updates", "knowledge_base.secondary"
+        )
+        selected_section = _get_required(
+            platform_updates,
+            date,
+            "knowledge_base.secondary.platform_policy_updates",
+        )
         content += iter_dict(selected_section)
-        
+
         content += f"# Streaming platforms landscape for {date}:\n\n"
-        selected_section = kb["secondary"]["streaming_platforms_landscape"][date]      
+        platform_landscape = _get_required(
+            secondary, "streaming_platforms_landscape", "knowledge_base.secondary"
+        )
+        selected_section = _get_required(
+            platform_landscape,
+            date,
+            "knowledge_base.secondary.streaming_platforms_landscape",
+        )
         content += iter_dict(selected_section)
 
     elif section == "competition":
         content += f"# Believe's competitive positioning:\n\n"
-        selected_section = kb["primary"]["believe_competitive_positioning"]
+        selected_section = _get_required(
+            primary, "believe_competitive_positioning", "knowledge_base.primary"
+        )
         content += iter_dict(selected_section)
-        
-        selected_section = kb["secondary"]["competitor_intelligence"][date]      
+
+        competitor_intel = _get_required(
+            secondary, "competitor_intelligence", "knowledge_base.secondary"
+        )
+        selected_section = _get_required(
+            competitor_intel,
+            date,
+            "knowledge_base.secondary.competitor_intelligence",
+        )
         content += f"# Competition analysis for {date}:\n\n"
         content += iter_dict(selected_section)
 
     elif section == "artist_economy":
-        selected_section = kb["secondary"]["independent_music_industry"][date]
+        artist_economy = _get_required(
+            secondary, "independent_music_industry", "knowledge_base.secondary"
+        )
+        selected_section = _get_required(
+            artist_economy,
+            date,
+            "knowledge_base.secondary.independent_music_industry",
+        )
         content += f"# Artist economy for {date}:\n\n"
         content += iter_dict(selected_section)
-        
+
     elif section == "opportunities":
-        selected_section = kb["primary"]["believe_company_profile"]
+        selected_section = _get_required(
+            primary, "believe_company_profile", "knowledge_base.primary"
+        )
         content += f"# Believe's company profile:\n\n"
         content += iter_dict(selected_section)
 
         content += f"# Market opportunities:\n\n"
-        for f in kb["secondary"]:
-            selected_section = kb["secondary"][f][date]
+        for f in secondary:
+            secondary_source = _get_required(
+                secondary, f, "knowledge_base.secondary"
+            )
+            selected_section = _get_required(
+                secondary_source,
+                date,
+                f"knowledge_base.secondary.{f}",
+            )
             content += f"# {f}:\n\n"
             content += iter_dict(selected_section)
 
     return content
+
 
 def get_section_context(kb, sections, date, markets):
     """Build one combined context string from all selected sections.
@@ -80,6 +168,12 @@ def get_section_context(kb, sections, date, markets):
     Returns:
         str: Combined context text used by prompt generation.
     """
+    if not isinstance(sections, list):
+        raise ValueError("sections must be a list of section names.")
+
+    if not isinstance(markets, list):
+        raise ValueError("markets must be a list of market names.")
+
     content = ""
     for s in sections:
         content += "#######################################\n"
