@@ -180,9 +180,6 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
         `combined_context`, `report_depth`, `audience`, `style`
     """
     try:
-        print("######################## METADATA ########################")
-        print(metadata)
-        print("######################## END METADATA ########################")
         validate_inputs(metadata, required_fields=["combined_context"])
 
         prompt_key = str(metadata.get("prompt_type", "market_analysis"))
@@ -204,6 +201,14 @@ def build_section_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "audience": audience,
             "length_instruction": length_instruction,
         }
+
+        print(
+            "[prompt_templates] build_section_prompt: "
+            f"prompt_type={prompt_key}, style={metadata.get('style', 'thought_leadership')}, "
+            f"audience={audience or 'unspecified'}, depth={report_depth}, "
+            f"context_chars={len(combined_context)}",
+            flush=True,
+        )
 
         prompt = _format_prompt(template, prompt_values).strip()
 
@@ -264,6 +269,15 @@ def build_feedback_prompt(metadata: Dict[str, Any]) -> Dict[str, Any]:
             "audience": audience,
             "length_instruction": length_instruction,
         }
+
+        print(
+            "[prompt_templates] build_feedback_prompt: "
+            f"scope={section_scope}, style={style}, depth={report_depth}, "
+            f"general_feedback_chars={len(general_feedback)}, "
+            f"section_feedback_items="
+            f"{len(metadata.get('section_feedback', {})) if isinstance(metadata.get('section_feedback', {}), dict) else 0}",
+            flush=True,
+        )
 
         prompt = _format_prompt(template, prompt_values).strip()
 

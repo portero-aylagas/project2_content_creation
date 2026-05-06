@@ -29,6 +29,16 @@ SECTION_NAME_MAP = {
     "market_opportunities": "opportunities",
 }
 
+PREVIEW_MAX_CHARS = 220
+
+
+def _preview_text(text: str, max_chars: int = PREVIEW_MAX_CHARS) -> str:
+    """Return a single-line preview snippet for logs."""
+    cleaned = text.replace("\n", " ").strip()
+    if len(cleaned) <= max_chars:
+        return cleaned
+    return cleaned[:max_chars] + "..."
+
 
 def generate_report(report_request: dict[str, object]) -> dict[str, object]:
     """Generate a report from UI request parameters.
@@ -114,6 +124,12 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(prompt_payload["error"])
 
     prompt_payload["temperature"] = normalized_request["temperature"]
+    print(
+        "[content_pipeline] generate_report: sending prompt to LLM "
+        f"(model={normalized_request['model'] or 'default'}, "
+        f"period={kb_period}, sections={len(kb_sections)}, markets={len(kb_markets)}).",
+        flush=True,
+    )
     llm_response = generate_text(
         prompt_payload,
         model=normalized_request["model"] or None,
@@ -124,9 +140,11 @@ def generate_report(report_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
 
     generated_text = str(llm_response.get("generated_text", ""))
-    print("######################## GENERATED TEXT ########################")
-    print(generated_text)
-    print("###################### END GENERATED TEXT #########################")
+    print(
+        "[content_pipeline] generate_report: generated text preview -> "
+        f"{_preview_text(generated_text)}",
+        flush=True,
+    )
 
     return {
         "report": {
@@ -207,6 +225,11 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(feedback_prompt_payload["error"])
 
     feedback_prompt_payload["temperature"] = temperature
+    print(
+        "[content_pipeline] iterate_report: sending feedback prompt to LLM "
+        f"(model={model or 'default'}, sections={len(original_inputs.get('sections', []))}).",
+        flush=True,
+    )
     llm_response = generate_text(
         feedback_prompt_payload,
         model=model or None,
@@ -217,6 +240,11 @@ def iterate_report(feedback_request: dict[str, object]) -> dict[str, object]:
         raise RuntimeError(str(llm_response.get("error", "LLM generation failed.")))
 
     revised_text = str(llm_response.get("generated_text", ""))
+    print(
+        "[content_pipeline] iterate_report: revised text preview -> "
+        f"{_preview_text(revised_text)}",
+        flush=True,
+    )
 
     return {
         "report": {
