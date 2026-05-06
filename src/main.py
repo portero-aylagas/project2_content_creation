@@ -123,8 +123,8 @@ def submit_report_request(
     style: str,
     selected_model: str,
     temperature: float,
-) -> tuple[str, str, str, str]:
-    """Generate a report and return status, request JSON, markdown, and payload."""
+) -> tuple[str, str, str, str, str, str]:
+    """Generate a report and return status, request JSON, markdown, payload, tokens, and cost."""
     report_request = build_report_request(
         year,
         month_name,
@@ -145,6 +145,8 @@ def submit_report_request(
             json.dumps(report_request, indent=2),
             "",
             "",
+            "Tokens used: N/A",
+            "Cost: N/A",
         )
 
     status_message = (
@@ -157,6 +159,8 @@ def submit_report_request(
         json.dumps(report_request, indent=2),
         pipeline_response["report"]["full_text"],
         json.dumps(pipeline_response, indent=2),
+        f"**Tokens used:** {pipeline_response['metadata'].get('tokens_used', 0)}",
+        f"**Cost:** ${pipeline_response['metadata'].get('cost_usd', 0.0):.4f}",
     )
 
 
@@ -171,13 +175,15 @@ def submit_feedback_request(
     selected_model: str,
     temperature: float,
     *section_feedback_values: str,
-) -> tuple[str, str, str]:
-    """Run feedback iteration and return status, revised markdown, and payload."""
+) -> tuple[str, str, str, str, str]:
+    """Run feedback iteration and return status, revised markdown, payload, tokens, and cost."""
     if not generated_report_text.strip():
         return (
             "WARNING: Generate the report before applying feedback.",
             "",
             "",
+            "Tokens used: N/A",
+            "Cost: N/A",
         )
 
     section_feedback = {
@@ -242,6 +248,8 @@ def submit_feedback_request(
             f"Feedback iteration failed ({type(exc).__name__}): {exc}",
             "",
             "",
+            "Tokens used: N/A",
+            "Cost: N/A",
         )
 
     status_message = (
@@ -253,6 +261,8 @@ def submit_feedback_request(
         status_message,
         revised_response["report"]["full_text"],
         json.dumps(revised_response, indent=2),
+        f"Tokens used: {revised_response['metadata'].get('tokens_used', 0)}",
+        f"Cost: ${revised_response['metadata'].get('cost_usd', 0.0):.4f}",
     )
 
 
@@ -420,6 +430,16 @@ def main():
             elem_classes=["report-document"],
         )
         
+        with gr.Row():
+            with gr.Column(scale=1):
+                token_usage_output = gr.Markdown(
+                    "**Tokens used:** N/A",
+                )
+            with gr.Column(scale=1):
+                usd_cost_output = gr.Markdown(
+                    "**Cost:** N/A",
+                )
+
         # Download components for the report
         download_file = gr.File(label="Download Report", interactive=False, scale=0)
         download_button = gr.Button("Download Report as .md", elem_classes="orange-btn")
@@ -466,11 +486,24 @@ def main():
             label="Revised Report",
             elem_classes=["report-document"],
         )
+        with gr.Row():
+            with gr.Column(scale=1):
+                revised_token_usage_output = gr.Markdown(
+                    "**Tokens used:** N/A",
+                )
+            with gr.Column(scale=1):
+                revised_usd_cost_output = gr.Markdown(
+                    "**Cost:** N/A",
+                )
         with gr.Accordion("Iterate JSON (click to expand/collapse)", open=False):
             revised_json_output = gr.Code(
                 language="json",
                 interactive=False,
             )
+
+        # Download components for the revised report after feedback
+        revised_download_file = gr.File(label="Download Revised Report", interactive=False, scale=0)
+        revised_download_button = gr.Button("Download Revised Report as .md", elem_classes="orange-btn")
 
         generate_button.click(
             fn=submit_report_request,
@@ -490,6 +523,8 @@ def main():
                 report_request_output,
                 report_output,
                 json_output,
+                token_usage_output,
+                usd_cost_output,
             ],
         )
 
@@ -517,6 +552,8 @@ def main():
                 feedback_warning_output,
                 revised_report_output,
                 revised_json_output,
+                revised_token_usage_output,
+                revised_usd_cost_output,
             ],
         )
 
@@ -536,6 +573,12 @@ def main():
             fn=prepare_report_download,
             inputs=[report_output],
             outputs=[download_file],
+        )
+
+        revised_download_button.click(
+            fn=prepare_report_download,
+            inputs=[revised_report_output],
+            outputs=[revised_download_file],
         )
 
     demo.launch()
