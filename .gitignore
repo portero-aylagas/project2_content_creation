@@ -222,4 +222,14 @@ __marimo__/
 
 # VS Code Python extension settings files
 .vscode/
-.env
+
+# lab
+lab_source/
+
+# codex
+.codex/
+.agents/
+
+# Claude Code
+.claude/
+CLAUDE.local.md
